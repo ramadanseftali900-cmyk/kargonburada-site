@@ -1,0 +1,895 @@
+﻿<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ürün Sayfası 10</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:Arial,sans-serif;background:#fff;min-height:100vh}
+html{overflow:auto}
+/* Admin için her şey görünür */
+.urunPage{background:#fff;min-height:100vh;display:block;padding:0;overflow-y:auto;-webkit-overflow-scrolling:touch;position:relative;z-index:1}
+#toggleTopBtn{background:#28a745;color:#fff;width:50px;height:50px;border:none;border-radius:50%;cursor:pointer;font-size:33px;font-weight:900;display:flex;align-items:center;justify-content:center;position:fixed;right:15px;top:95px;z-index:10000;text-shadow:0 0 2px #fff}
+#adminBtn{background:#28a745;color:#fff;width:52px;height:52px;border:none;border-radius:50%;cursor:pointer;font-size:11px;font-weight:900;display:flex;align-items:center;justify-content:center;position:fixed;right:15px;top:235px;z-index:10000}
+#topDrawer{position:fixed;top:0;left:0;right:0;z-index:1000;background:#f5f5f5;padding:10px 0;border-bottom:1px solid #eee;transform:translateY(-100%);transition:none}
+#topDrawer.open{transform:translateY(0)}
+#leftDrawer{position:fixed;left:0;top:85px;width:290px;height:calc(100vh - 85px);background:#fff;box-shadow:2px 0 10px rgba(0,0,0,0.1);z-index:999;overflow:hidden;transform:translateX(-290px);transition:none}
+#leftDrawer.open{transform:translateX(0)}
+.leftDrawerHeader{background:#28a745;color:#fff;padding:20px;font-size:18px;font-weight:900;text-align:center;position:sticky;top:0;z-index:10}
+.leftDrawerContent{padding:20px;height:calc(100vh - 145px);overflow-y:auto;direction:ltr}
+input::placeholder{color:#A0AEC3 !important;opacity:1}
+#fiyat1Input::placeholder,#fiyat2Input::placeholder{color:#28a745 !important;opacity:1}
+.formWrapper{max-width:768px;margin:0 auto;margin-top:0;background:linear-gradient(to right, #fbfbfb 0%, #fbfbfb 20px, #fff 84px, #fff calc(100% - 84px), #fbfbfb calc(100% - 20px), #fbfbfb 100%);padding:0 3px;border-radius:8px;min-height:100vh;display:flex;flex-direction:column;justify-content:flex-end;padding-bottom:1px}
+.formContent{flex:1;padding-top:20px;padding-bottom:0}
+.formLabel{display:block;font-weight:900;margin-bottom:8px;color:#2d3748;font-size:15px;margin-top:5px}
+.formInput{width:calc(100% - 2px);margin-left:0;padding:14px;border:2px solid #e2e8f0;border-radius:8px;font-size:15px;background:#fff;margin-bottom:10px;color:#000;font-weight:600}
+.formInput:focus{outline:none;border-color:#4CAF50}
+.formInput.error{border-color:#dc3545 !important}
+.formInput::placeholder{color:#A0AEC3;font-weight:600}
+.formTextarea{width:calc(100% - 2px);margin-left:0;padding:14px;border:2px solid #e2e8f0;border-radius:8px;font-size:15px;background:#fff;margin-bottom:0;min-height:100px;resize:vertical;color:#000;font-weight:600}
+.formTextarea:focus{outline:none;border-color:#4CAF50}
+.formTextarea.error{border-color:#dc3545 !important}
+.formTextarea::placeholder{color:#A0AEC3;font-weight:600}
+.formSelect{width:calc(100% - 2px);margin-left:0;padding:14px;border:2px solid #e2e8f0;border-radius:8px;font-size:15px;background:#fff;margin-bottom:10px;cursor:pointer;color:#2d3748;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23333' d='M6 9L1 4h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;font-weight:600}
+.formSelect:focus{outline:none;border-color:#4CAF50}
+.formSelect.error{border-color:#dc3545 !important}
+.siparisBtn{width:calc(100% - 2px);background:#28a745;color:#fff;border:none;padding:16px;border-radius:8px;font-size:18px;font-weight:bold;cursor:pointer;margin-bottom:1px;margin-left:auto;margin-right:auto;margin-top:20px;display:block}
+.siparisBtn:hover{background:#dc3545;color:#fff;border:2px solid #dc3545}
+.radioBox{background:#fff;border:2px solid #e2e8f0;border-radius:8px;padding:15px;margin-bottom:10px;margin-left:2px;margin-right:2px}
+.radioOption{display:flex;align-items:center;padding:12px;margin-bottom:8px;flex-wrap:wrap}
+.radioOption:last-child{margin-bottom:0}
+.radioOption input[type="radio"]{width:24px;height:24px;min-width:24px;margin-right:12px;cursor:pointer;accent-color:#28a745}
+.radioOption span{flex:1;color:#2E3654;font-size:22px;font-weight:700;line-height:1.4}
+.badge{background:#4CAF50;color:#fff !important;padding:4px 10px;border-radius:8px;font-size:20px;font-weight:bold;margin-left:10px;margin-right:15px;animation:slideLeftRight 2s ease-in-out infinite;display:inline-block}
+@keyframes slideLeftRight{0%,100%{transform:translateX(0)}25%{transform:translateX(-10px)}75%{transform:translateX(10px)}}
+@media(max-width:480px){.radioOption{padding:10px;}.radioOption span{font-size:16px;}.badge{font-size:14px;padding:3px 8px;margin-left:5px;margin-right:5px;}.radioOption input[type="radio"]{width:20px;height:20px;min-width:20px;margin-right:10px;}#fiyat1Display,#fiyat2Display{font-size:24px !important;}}
+#successModal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:99999;display:none;align-items:center;justify-content:center;flex-direction:column;padding:20px}
+#successModal.show{display:flex}
+.success-box{background:#f8f9fa;max-width:768px;width:100%;border-radius:16px;padding:40px 30px;box-shadow:0 10px 40px rgba(0,0,0,0.2);animation:successGir 0.5s ease;position:relative;overflow:hidden}
+.checkmark{width:80px;height:80px;border-radius:50%;background:#28a745;display:flex;align-items:center;justify-content:center;margin:0 auto 30px;animation:scaleIn 0.5s ease-out}
+.checkmark svg{width:50px;height:50px;fill:none;stroke:#fff;stroke-width:6;stroke-linecap:round;stroke-linejoin:round}
+@keyframes scaleIn{0%{transform:scale(0);opacity:0}100%{transform:scale(1);opacity:1}}
+@keyframes successGir{0%{opacity:0;transform:scale(0.9) translateY(-20px)}100%{opacity:1;transform:scale(1) translateY(0)}}
+.success-title{font-size:28px;font-weight:900;color:#2E3654;margin-bottom:20px;text-align:center;animation:fadeSlideUp 0.6s ease-out 0.3s both}
+.success-text{font-size:16px;color:#2E3654;text-align:center;max-width:500px;margin:0 auto;line-height:1.8;margin-bottom:15px;animation:fadeSlideUp 0.6s ease-out 0.5s both}
+.success-text strong{font-weight:900}
+.success-info{font-size:18px;color:#2E3654;text-align:center;margin:20px 0;animation:fadeSlideUp 0.6s ease-out 0.7s both}
+.success-footer{font-size:14px;color:#6C757D;margin-top:30px;text-align:center;animation:fadeSlideUp 0.6s ease-out 0.9s both}
+@keyframes fadeSlideUp{0%{opacity:0;transform:translateY(20px)}100%{opacity:1;transform:translateY(0)}}
+.confetti{position:fixed;width:10px;height:10px;background:#28a745;top:-10px;z-index:100000;animation:confettiFall 3s linear forwards}
+@keyframes confettiFall{to{transform:translateY(100vh) rotate(360deg);opacity:0}}
+@media(max-width:480px){.success-box{padding:30px 20px;margin:10px;border-radius:12px;}.success-title{font-size:22px;}.success-text{font-size:14px;}.success-info{font-size:16px;}.checkmark{width:60px;height:60px;}.checkmark svg{width:35px;height:35px;}}
+</style>
+
+<!-- META PIXEL CODE -->
+<script>
+!function(f,b,e,v,n,t,s)
+{if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+n.queue=[];t=b.createElement(e);t.async=!0;
+t.src=v;s=b.getElementsByTagName(e)[0];
+s.parentNode.insertBefore(t,s)}(window, document,'script',
+'https://connect.facebook.net/en_US/fbevents.js');
+
+var metaSettings = JSON.parse(localStorage.getItem('meta_pixel_settings') || '{}');
+var metaPixelId = metaSettings.pixelId || '';
+var metaActive = metaSettings.active || false;
+var metaEvents = metaSettings.events || [];
+
+if(metaPixelId && metaActive){
+    fbq('init', metaPixelId);
+    if(metaEvents.indexOf('PageView') > -1){ fbq('track', 'PageView'); }
+    if(metaEvents.indexOf('ViewContent') > -1){ fbq('track', 'ViewContent', {content_type: 'product'}); }
+}
+
+function fireMetaLeadEvent(){
+    if(metaPixelId && metaActive && metaEvents.indexOf('Lead') > -1){ fbq('track', 'Lead'); }
+}
+</script>
+<!-- END META PIXEL CODE -->
+
+</head>
+<body>
+
+<!-- SİPARİŞ ONAY EKRANI -->
+<div id="successModal">
+<div class="success-box">
+<div class="checkmark">
+<svg viewBox="0 0 52 52"><path d="M14 27l7.5 7.5L38 18"/></svg>
+</div>
+<div class="success-title">Siparişiniz Başarıyla Alındı!</div>
+<div class="success-text">Siparişiniz sistemimize sorunsuz şekilde ulaştı. <strong>Ödeme kapıda yapılacaktır.</strong> Şu an sizden <strong>hiçbir ücret alınmamıştır.</strong></div>
+<div class="success-info">📦 Siparişiniz hazırlanıp kargoya verilecektir.</div>
+<div class="success-info">🚚 Teslim süresi: 1–3 iş günü</div>
+<div class="success-text">Kargonuz yola çıktığında bilgilendirileceksiniz.</div>
+<div class="success-footer">Bizi tercih ettiğiniz için teşekkür ederiz 💚</div>
+</div>
+</div>
+
+<!-- ÜST ÇEKMECE -->
+<div id="topDrawer">
+<div style="display:grid;grid-template-columns:repeat(10, 1fr);gap:2px;">
+<button onclick="window.location.href='ürün-sayfası-1.html'" style="background:#28a745;color:#fff;border:none;padding:20px 10px;border-radius:12px;font-weight:bold;cursor:pointer;font-size:16px;height:65px;">ÜRÜN 1</button>
+<button onclick="window.location.href='ürün-sayfası-2.html'" style="background:#28a745;color:#fff;border:none;padding:20px 10px;border-radius:12px;font-weight:bold;cursor:pointer;font-size:16px;height:65px;">ÜRÜN 2</button>
+<button onclick="window.location.href='ürün-sayfası-3.html'" style="background:#28a745;color:#fff;border:none;padding:20px 10px;border-radius:12px;font-weight:bold;cursor:pointer;font-size:16px;height:65px;">ÜRÜN 3</button>
+<button onclick="window.location.href='ürün-sayfası-4.html'" style="background:#28a745;color:#fff;border:none;padding:20px 10px;border-radius:12px;font-weight:bold;cursor:pointer;font-size:16px;height:65px;">ÜRÜN 4</button>
+<button onclick="window.location.href='ürün-sayfası-5.html'" style="background:#28a745;color:#fff;border:none;padding:20px 10px;border-radius:12px;font-weight:bold;cursor:pointer;font-size:16px;height:65px;">ÜRÜN 5</button>
+<button onclick="window.location.href='ürün-sayfası-6.html'" style="background:#28a745;color:#fff;border:none;padding:20px 10px;border-radius:12px;font-weight:bold;cursor:pointer;font-size:16px;height:65px;">ÜRÜN 6</button>
+<button onclick="window.location.href='ürün-sayfası-7.html'" style="background:#28a745;color:#fff;border:none;padding:20px 10px;border-radius:12px;font-weight:bold;cursor:pointer;font-size:16px;height:65px;">ÜRÜN 7</button>
+<button onclick="window.location.href='ürün-sayfası-8.html'" style="background:#28a745;color:#fff;border:none;padding:20px 10px;border-radius:12px;font-weight:bold;cursor:pointer;font-size:16px;height:65px;">ÜRÜN 8</button>
+<button onclick="window.location.href='ürün-sayfası-9.html'" style="background:#28a745;color:#fff;border:none;padding:20px 10px;border-radius:12px;font-weight:bold;cursor:pointer;font-size:16px;height:65px;">ÜRÜN 9</button>
+<button onclick="window.location.href='ürün-sayfası-10.html'" style="background:#28a745;color:#fff;border:none;padding:20px 10px;border-radius:12px;font-weight:bold;cursor:pointer;font-size:16px;height:65px;">ÜRÜN 10</button>
+</div>
+</div>
+
+<button id="toggleTopBtn" onclick="toggleTopDrawer()">↓</button>
+<div style="background:#28a745;color:#fff;width:50px;height:50px;border:none;border-radius:50%;font-size:24px;font-weight:900;display:flex;align-items:center;justify-content:center;position:fixed;right:75px;top:95px;z-index:10000;">10</div>
+<button onclick="window.location.href='ana-sayfa-1.html'" style="background:#28a745;color:#fff;width:52px;height:52px;border:none;border-radius:50%;cursor:pointer;font-size:11px;font-weight:900;display:flex;align-items:center;justify-content:center;position:fixed;right:15px;top:165px;z-index:10000;">GERİ</button>
+<button id="adminBtn" onclick="toggleLeftDrawer()">ADMİN</button>
+
+<!-- YAN ÇEKMECE (SOL ADMİN PANELİ) -->
+<div id="leftDrawer">
+<div class="leftDrawerHeader">ADMİN 10</div>
+<div class="leftDrawerContent">
+<h3 style="color:#000;font-weight:900;margin-bottom:15px;">Ürün URL Gir</h3>
+<div style="position:relative;margin-bottom:30px;">
+<span id="urlCheck" style="position:absolute;left:10px;top:50%;transform:translateY(-50%);color:#28a745;font-size:20px;font-weight:900;display:none;">✓</span>
+<input type="text" id="urlInput" style="width:100%;height:40px;border:2px solid #28a745;border-radius:8px;padding:0 80px 0 40px;font-size:14px;font-weight:600;" placeholder="URL gir">
+<span onclick="kaydetUrl()" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);color:#dc3545;font-size:12px;font-weight:900;cursor:pointer;">KAYDET</span>
+</div>
+<h3 style="color:#000;font-weight:900;margin-bottom:15px;">1 Adet Ürün İsim Gir</h3>
+<div style="position:relative;margin-bottom:15px;">
+<span id="isim1Check" style="position:absolute;left:10px;top:50%;transform:translateY(-50%);color:#28a745;font-size:20px;font-weight:900;display:none;">✓</span>
+<input type="text" id="isim1Input" style="width:100%;height:40px;border:2px solid #28a745;border-radius:8px;padding:0 80px 0 40px;font-size:14px;font-weight:600;" placeholder="İsim gir">
+<span onclick="kaydetIsim1()" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);color:#dc3545;font-size:12px;font-weight:900;cursor:pointer;">KAYDET</span>
+</div>
+<h3 style="color:#000;font-weight:900;margin-bottom:15px;">2 Adet Ürün İsim Gir</h3>
+<div style="position:relative;margin-bottom:30px;">
+<span id="isim2Check" style="position:absolute;left:10px;top:50%;transform:translateY(-50%);color:#28a745;font-size:20px;font-weight:900;display:none;">✓</span>
+<input type="text" id="isim2Input" style="width:100%;height:40px;border:2px solid #28a745;border-radius:8px;padding:0 80px 0 40px;font-size:14px;font-weight:600;" placeholder="İsim gir">
+<span onclick="kaydetIsim2()" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);color:#dc3545;font-size:12px;font-weight:900;cursor:pointer;">KAYDET</span>
+</div>
+<h3 style="color:#000;font-weight:900;margin-bottom:15px;">1 Adet Fiyat Gir</h3>
+<div style="position:relative;margin-bottom:15px;">
+<input type="text" id="fiyat1Input" style="width:100%;height:40px;border:2px solid #28a745;border-radius:8px;padding:0 80px 0 20px;font-size:14px;font-weight:600;color:#28a745;text-align:left;padding-left:20px;" placeholder="Fiyat gir">
+<span onclick="kaydetFiyat1()" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);color:#dc3545;font-size:12px;font-weight:900;cursor:pointer;">KAYDET</span>
+</div>
+<h3 style="color:#000;font-weight:900;margin-bottom:15px;">2 Adet Fiyat Gir</h3>
+<div style="position:relative;margin-bottom:30px;">
+<input type="text" id="fiyat2Input" style="width:100%;height:40px;border:2px solid #28a745;border-radius:8px;padding:0 80px 0 20px;font-size:14px;font-weight:600;color:#28a745;text-align:left;padding-left:20px;" placeholder="Fiyat gir">
+<span onclick="kaydetFiyat2()" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);color:#dc3545;font-size:12px;font-weight:900;cursor:pointer;">KAYDET</span>
+</div>
+<h3 style="color:#000;font-weight:900;margin-bottom:15px;">Üst Görsel 1</h3>
+<input type="file" id="topImg1" accept="image/*" style="display:none;" onchange="loadImage(event, 'topImg1')">
+<div id="topImg1Status" onclick="document.getElementById('topImg1').click()" style="width:100%;height:40px;border:2px solid #28a745;border-radius:8px;display:flex;align-items:center;justify-content:center;background:#fff;cursor:pointer;padding:0 10px;margin-bottom:15px;"><span style="color:#dc3545;font-size:12px;font-weight:900;">Görsel yüklenmedi</span></div>
+<h3 style="color:#000;font-weight:900;margin-bottom:15px;">Üst Görsel 2</h3>
+<input type="file" id="topImg2" accept="image/*" style="display:none;" onchange="loadImage(event, 'topImg2')">
+<div id="topImg2Status" onclick="document.getElementById('topImg2').click()" style="width:100%;height:40px;border:2px solid #28a745;border-radius:8px;display:flex;align-items:center;justify-content:center;background:#fff;cursor:pointer;padding:0 10px;margin-bottom:15px;"><span style="color:#dc3545;font-size:12px;font-weight:900;">Görsel yüklenmedi</span></div>
+<h3 style="color:#000;font-weight:900;margin-bottom:15px;">Üst Görsel 3</h3>
+<input type="file" id="topImg3" accept="image/*" style="display:none;" onchange="loadImage(event, 'topImg3')">
+<div id="topImg3Status" onclick="document.getElementById('topImg3').click()" style="width:100%;height:40px;border:2px solid #28a745;border-radius:8px;display:flex;align-items:center;justify-content:center;background:#fff;cursor:pointer;padding:0 10px;margin-bottom:15px;"><span style="color:#dc3545;font-size:12px;font-weight:900;">Görsel yüklenmedi</span></div>
+<h3 style="color:#000;font-weight:900;margin-bottom:15px;">Üst Görsel 4</h3>
+<input type="file" id="topImg4" accept="image/*" style="display:none;" onchange="loadImage(event, 'topImg4')">
+<div id="topImg4Status" onclick="document.getElementById('topImg4').click()" style="width:100%;height:40px;border:2px solid #28a745;border-radius:8px;display:flex;align-items:center;justify-content:center;background:#fff;cursor:pointer;padding:0 10px;margin-bottom:15px;"><span style="color:#dc3545;font-size:12px;font-weight:900;">Görsel yüklenmedi</span></div>
+<h3 style="color:#000;font-weight:900;margin-bottom:15px;">Üst Görsel 5</h3>
+<input type="file" id="topImg5" accept="image/*" style="display:none;" onchange="loadImage(event, 'topImg5')">
+<div id="topImg5Status" onclick="document.getElementById('topImg5').click()" style="width:100%;height:40px;border:2px solid #28a745;border-radius:8px;display:flex;align-items:center;justify-content:center;background:#fff;cursor:pointer;padding:0 10px;margin-bottom:15px;"><span style="color:#dc3545;font-size:12px;font-weight:900;">Görsel yüklenmedi</span></div>
+<h3 style="color:#000;font-weight:900;margin-bottom:15px;">Üst Görsel 6</h3>
+<input type="file" id="topImg6" accept="image/*" style="display:none;" onchange="loadImage(event, 'topImg6')">
+<div id="topImg6Status" onclick="document.getElementById('topImg6').click()" style="width:100%;height:40px;border:2px solid #28a745;border-radius:8px;display:flex;align-items:center;justify-content:center;background:#fff;cursor:pointer;padding:0 10px;margin-bottom:15px;"><span style="color:#dc3545;font-size:12px;font-weight:900;">Görsel yüklenmedi</span></div>
+<h3 style="color:#000;font-weight:900;margin-bottom:15px;">Üst Görsel 7</h3>
+<input type="file" id="topImg7" accept="image/*" style="display:none;" onchange="loadImage(event, 'topImg7')">
+<div id="topImg7Status" onclick="document.getElementById('topImg7').click()" style="width:100%;height:40px;border:2px solid #28a745;border-radius:8px;display:flex;align-items:center;justify-content:center;background:#fff;cursor:pointer;padding:0 10px;margin-bottom:15px;"><span style="color:#dc3545;font-size:12px;font-weight:900;">Görsel yüklenmedi</span></div>
+<h3 style="color:#000;font-weight:900;margin-bottom:15px;">Üst Görsel 8</h3>
+<input type="file" id="topImg8" accept="image/*" style="display:none;" onchange="loadImage(event, 'topImg8')">
+<div id="topImg8Status" onclick="document.getElementById('topImg8').click()" style="width:100%;height:40px;border:2px solid #28a745;border-radius:8px;display:flex;align-items:center;justify-content:center;background:#fff;cursor:pointer;padding:0 10px;margin-bottom:15px;"><span style="color:#dc3545;font-size:12px;font-weight:900;">Görsel yüklenmedi</span></div>
+<h3 style="color:#000;font-weight:900;margin-bottom:15px;">Üst Görsel 9</h3>
+<input type="file" id="topImg9" accept="image/*" style="display:none;" onchange="loadImage(event, 'topImg9')">
+<div id="topImg9Status" onclick="document.getElementById('topImg9').click()" style="width:100%;height:40px;border:2px solid #28a745;border-radius:8px;display:flex;align-items:center;justify-content:center;background:#fff;cursor:pointer;padding:0 10px;margin-bottom:15px;"><span style="color:#dc3545;font-size:12px;font-weight:900;">Görsel yüklenmedi</span></div>
+<h3 style="color:#000;font-weight:900;margin-bottom:15px;">Üst Görsel 10</h3>
+<input type="file" id="topImg10" accept="image/*" style="display:none;" onchange="loadImage(event, 'topImg10')">
+<div id="topImg10Status" onclick="document.getElementById('topImg10').click()" style="width:100%;height:40px;border:2px solid #28a745;border-radius:8px;display:flex;align-items:center;justify-content:center;background:#fff;cursor:pointer;padding:0 10px;margin-bottom:15px;"><span style="color:#dc3545;font-size:12px;font-weight:900;">Görsel yüklenmedi</span></div>
+<h3 style="color:#000;font-weight:900;margin-bottom:15px;">Üst Görsel 11</h3>
+<input type="file" id="topImg11" accept="image/*" style="display:none;" onchange="loadImage(event, 'topImg11')">
+<div id="topImg11Status" onclick="document.getElementById('topImg11').click()" style="width:100%;height:40px;border:2px solid #28a745;border-radius:8px;display:flex;align-items:center;justify-content:center;background:#fff;cursor:pointer;padding:0 10px;margin-bottom:15px;"><span style="color:#dc3545;font-size:12px;font-weight:900;">Görsel yüklenmedi</span></div>
+<h3 style="color:#000;font-weight:900;margin-bottom:15px;">Üst Görsel 12</h3>
+<input type="file" id="topImg12" accept="image/*" style="display:none;" onchange="loadImage(event, 'topImg12')">
+<div id="topImg12Status" onclick="document.getElementById('topImg12').click()" style="width:100%;height:40px;border:2px solid #28a745;border-radius:8px;display:flex;align-items:center;justify-content:center;background:#fff;cursor:pointer;padding:0 10px;margin-bottom:15px;"><span style="color:#dc3545;font-size:12px;font-weight:900;">Görsel yüklenmedi</span></div>
+<h3 style="color:#000;font-weight:900;margin-bottom:15px;">Üst Görsel 13</h3>
+<input type="file" id="topImg13" accept="image/*" style="display:none;" onchange="loadImage(event, 'topImg13')">
+<div id="topImg13Status" onclick="document.getElementById('topImg13').click()" style="width:100%;height:40px;border:2px solid #28a745;border-radius:8px;display:flex;align-items:center;justify-content:center;background:#fff;cursor:pointer;padding:0 10px;margin-bottom:15px;"><span style="color:#dc3545;font-size:12px;font-weight:900;">Görsel yüklenmedi</span></div>
+<h3 style="color:#000;font-weight:900;margin-bottom:15px;">Üst Görsel 14</h3>
+<input type="file" id="topImg14" accept="image/*" style="display:none;" onchange="loadImage(event, 'topImg14')">
+<div id="topImg14Status" onclick="document.getElementById('topImg14').click()" style="width:100%;height:40px;border:2px solid #28a745;border-radius:8px;display:flex;align-items:center;justify-content:center;background:#fff;cursor:pointer;padding:0 10px;margin-bottom:15px;"><span style="color:#dc3545;font-size:12px;font-weight:900;">Görsel yüklenmedi</span></div>
+<h3 style="color:#000;font-weight:900;margin-bottom:15px;">Üst Görsel 15</h3>
+<input type="file" id="topImg15" accept="image/*" style="display:none;" onchange="loadImage(event, 'topImg15')">
+<div id="topImg15Status" onclick="document.getElementById('topImg15').click()" style="width:100%;height:40px;border:2px solid #28a745;border-radius:8px;display:flex;align-items:center;justify-content:center;background:#fff;cursor:pointer;padding:0 10px;margin-bottom:15px;"><span style="color:#dc3545;font-size:12px;font-weight:900;">Görsel yüklenmedi</span></div>
+<h3 style="color:#000;font-weight:900;margin-bottom:15px;">Alt Görsel 1</h3>
+<input type="file" id="bottomImg1" accept="image/*" style="display:none;" onchange="loadImage(event, 'bottomImg1')">
+<div id="bottomImg1Status" onclick="document.getElementById('bottomImg1').click()" style="width:100%;height:40px;border:2px solid #28a745;border-radius:8px;display:flex;align-items:center;justify-content:center;background:#fff;cursor:pointer;padding:0 10px;margin-bottom:15px;"><span style="color:#dc3545;font-size:12px;font-weight:900;">Görsel yüklenmedi</span></div>
+</div>
+</div>
+
+
+<div class="urunPage">
+<div style="width:100%;max-width:768px;margin:0 auto;">
+<div style="width:100%;margin:0;padding:0;line-height:0;cursor:pointer;" onclick="scrollToForm()">
+<img id="topImage1" src="" alt="" style="width:100%;height:auto;display:block;border-radius:0;">
+</div>
+<div style="width:100%;margin:0;padding:0;line-height:0;cursor:pointer;" onclick="scrollToForm()">
+<img id="topImage2" src="" alt="" style="width:100%;height:auto;display:block;border-radius:0;">
+</div>
+<div style="width:100%;margin:0;padding:0;line-height:0;cursor:pointer;" onclick="scrollToForm()">
+<img id="topImage3" src="" alt="" style="width:100%;height:auto;display:block;border-radius:0;">
+</div>
+<div style="width:100%;margin:0;padding:0;line-height:0;cursor:pointer;" onclick="scrollToForm()">
+<img id="topImage4" src="" alt="" style="width:100%;height:auto;display:block;border-radius:0;">
+</div>
+<div style="width:100%;margin:0;padding:0;line-height:0;cursor:pointer;" onclick="scrollToForm()">
+<img id="topImage5" src="" alt="" style="width:100%;height:auto;display:block;border-radius:0;">
+</div>
+<div style="width:100%;margin:0;padding:0;line-height:0;cursor:pointer;" onclick="scrollToForm()">
+<img id="topImage6" src="" alt="" style="width:100%;height:auto;display:block;border-radius:0;">
+</div>
+<div style="width:100%;margin:0;padding:0;line-height:0;cursor:pointer;" onclick="scrollToForm()">
+<img id="topImage7" src="" alt="" style="width:100%;height:auto;display:block;border-radius:0;">
+</div>
+<div style="width:100%;margin:0;padding:0;line-height:0;cursor:pointer;" onclick="scrollToForm()">
+<img id="topImage8" src="" alt="" style="width:100%;height:auto;display:block;border-radius:0;">
+</div>
+<div style="width:100%;margin:0;padding:0;line-height:0;cursor:pointer;" onclick="scrollToForm()">
+<img id="topImage9" src="" alt="" style="width:100%;height:auto;display:block;border-radius:0;">
+</div>
+<div style="width:100%;margin:0;padding:0;line-height:0;cursor:pointer;" onclick="scrollToForm()">
+<img id="topImage10" src="" alt="" style="width:100%;height:auto;display:block;border-radius:0;">
+</div>
+<div style="width:100%;margin:0;padding:0;line-height:0;cursor:pointer;" onclick="scrollToForm()">
+<img id="topImage11" src="" alt="" style="width:100%;height:auto;display:block;border-radius:0;">
+</div>
+<div style="width:100%;margin:0;padding:0;line-height:0;cursor:pointer;" onclick="scrollToForm()">
+<img id="topImage12" src="" alt="" style="width:100%;height:auto;display:block;border-radius:0;">
+</div>
+<div style="width:100%;margin:0;padding:0;line-height:0;cursor:pointer;" onclick="scrollToForm()">
+<img id="topImage13" src="" alt="" style="width:100%;height:auto;display:block;border-radius:0;">
+</div>
+<div style="width:100%;margin:0;padding:0;line-height:0;cursor:pointer;" onclick="scrollToForm()">
+<img id="topImage14" src="" alt="" style="width:100%;height:auto;display:block;border-radius:0;">
+</div>
+<div style="width:100%;margin:0;padding:0;line-height:0;cursor:pointer;" onclick="scrollToForm()">
+<img id="topImage15" src="" alt="" style="width:100%;height:auto;display:block;border-radius:0;">
+</div>
+</div>
+<div class="formWrapper" style="position:relative;">
+<label class="formLabel" style="margin-top:0">Ödeme Yöntemi:</label>
+<div class="radioBox">
+<div class="radioOption">
+<input type="radio" name="odeme" value="nakit" checked>
+<span>Kapıda Nakit Ödeme</span>
+</div>
+<div class="radioOption">
+<input type="radio" name="odeme" value="kredi">
+<span>Kapıda Kredi Kartı İle Ödeme</span>
+</div>
+</div>
+
+<label class="formLabel">Ürün Seçiniz:</label>
+<div class="radioBox">
+<div class="radioOption">
+<input type="radio" name="secim" value="1" checked>
+<span>1 ADET <span id="isim1Display">Ürün</span> <strong id="fiyat1Display" style="color:#28a745;font-size:35px">1.999TL</strong><br><span class="badge">Ücretsiz Kargo</span></span>
+</div>
+<div class="radioOption">
+<input type="radio" name="secim" value="2">
+<span>2 ADET <span id="isim2Display">Ürün</span> <strong id="fiyat2Display" style="color:#28a745;font-size:35px">3.899TL</strong><br><span class="badge">Ücretsiz Kargo</span></span>
+</div>
+</div>
+
+<label class="formLabel">Adınız Soyadınız:</label>
+<input type="text" id="adInput" class="formInput" placeholder="Adınızı ve Soyadınızı Yazın">
+<span id="adError" style="color:#dc3545;font-size:12px;font-weight:600;display:none;margin-top:5px;margin-bottom:10px;display:block;"></span>
+
+<label class="formLabel">Telefon Numaranız:</label>
+<input type="tel" id="telefonInput" class="formInput" placeholder="Cep Telefonu Numaranız" oninput="this.value = this.value.replace(/[^0-9]/g, '');">
+<span id="telefonError" style="color:#dc3545;font-size:12px;font-weight:600;display:none;margin-top:5px;margin-bottom:10px;display:block;"></span>
+
+<label class="formLabel">Bulunduğunuz İl:</label>
+<select class="formSelect" id="il-select" onchange="updateIlceler()">
+<option value="">Şehir Seçiniz...</option>
+<option value="adana">Adana</option>
+<option value="adiyaman">Adıyaman</option>
+<option value="afyonkarahisar">Afyonkarahisar</option>
+<option value="agri">Ağrı</option>
+<option value="aksaray">Aksaray</option>
+<option value="amasya">Amasya</option>
+<option value="ankara">Ankara</option>
+<option value="antalya">Antalya</option>
+<option value="ardahan">Ardahan</option>
+<option value="artvin">Artvin</option>
+<option value="aydin">Aydın</option>
+<option value="balikesir">Balıkesir</option>
+<option value="bartin">Bartın</option>
+<option value="batman">Batman</option>
+<option value="bayburt">Bayburt</option>
+<option value="bilecik">Bilecik</option>
+<option value="bingol">Bingöl</option>
+<option value="bitlis">Bitlis</option>
+<option value="bolu">Bolu</option>
+<option value="burdur">Burdur</option>
+<option value="bursa">Bursa</option>
+<option value="canakkale">Çanakkale</option>
+<option value="cankiri">Çankırı</option>
+<option value="corum">Çorum</option>
+<option value="denizli">Denizli</option>
+<option value="diyarbakir">Diyarbakır</option>
+<option value="duzce">Düzce</option>
+<option value="edirne">Edirne</option>
+<option value="elazig">Elazığ</option>
+<option value="erzincan">Erzincan</option>
+<option value="erzurum">Erzurum</option>
+<option value="eskisehir">Eskişehir</option>
+<option value="gaziantep">Gaziantep</option>
+<option value="giresun">Giresun</option>
+<option value="gumushane">Gümüşhane</option>
+<option value="hakkari">Hakkari</option>
+<option value="hatay">Hatay</option>
+<option value="igdir">Iğdır</option>
+<option value="isparta">Isparta</option>
+<option value="istanbul">İstanbul</option>
+<option value="izmir">İzmir</option>
+<option value="kahramanmaras">Kahramanmaraş</option>
+<option value="karabuk">Karabük</option>
+<option value="karaman">Karaman</option>
+<option value="kars">Kars</option>
+<option value="kastamonu">Kastamonu</option>
+<option value="kayseri">Kayseri</option>
+<option value="kilis">Kilis</option>
+<option value="kirikkale">Kırıkkale</option>
+<option value="kirklareli">Kırklareli</option>
+<option value="kirsehir">Kırşehir</option>
+<option value="kocaeli">Kocaeli</option>
+<option value="konya">Konya</option>
+<option value="kutahya">Kütahya</option>
+<option value="malatya">Malatya</option>
+<option value="manisa">Manisa</option>
+<option value="mardin">Mardin</option>
+<option value="mersin">Mersin</option>
+<option value="mugla">Muğla</option>
+<option value="mus">Muş</option>
+<option value="nevsehir">Nevşehir</option>
+<option value="nigde">Niğde</option>
+<option value="ordu">Ordu</option>
+<option value="osmaniye">Osmaniye</option>
+<option value="rize">Rize</option>
+<option value="sakarya">Sakarya</option>
+<option value="samsun">Samsun</option>
+<option value="sanliurfa">Şanlıurfa</option>
+<option value="siirt">Siirt</option>
+<option value="sinop">Sinop</option>
+<option value="sirnak">Şırnak</option>
+<option value="sivas">Sivas</option>
+<option value="tekirdag">Tekirdağ</option>
+<option value="tokat">Tokat</option>
+<option value="trabzon">Trabzon</option>
+<option value="tunceli">Tunceli</option>
+<option value="usak">Uşak</option>
+<option value="van">Van</option>
+<option value="yalova">Yalova</option>
+<option value="yozgat">Yozgat</option>
+<option value="zonguldak">Zonguldak</option>
+</select>
+<span id="ilError" style="color:#dc3545;font-size:12px;font-weight:600;display:none;margin-top:5px;margin-bottom:10px;display:block;"></span>
+
+<label class="formLabel">Bulunduğunuz İlçe:</label>
+<select class="formSelect" id="ilce-select">
+<option value="">İlçe Seçiniz</option>
+</select>
+<span id="ilceError" style="color:#dc3545;font-size:12px;font-weight:600;display:none;margin-top:5px;margin-bottom:10px;display:block;"></span>
+
+<label class="formLabel">Açık Adresiniz:</label>
+<textarea id="adresInput" class="formTextarea" placeholder="Açık Adresinizi Yazın"></textarea>
+<span id="adresError" style="color:#dc3545;font-size:12px;font-weight:600;display:none;margin-top:5px;margin-bottom:10px;display:block;"></span>
+
+<!-- SPAM UYARI KUTUSU - POPUP -->
+<div id="spamUyari" class="spam-popup-overlay">
+<div class="spam-popup-box">
+<div class="spam-popup-header">
+<div class="spam-popup-icon">⚠️</div>
+<div class="spam-popup-title">Günlük Limit Doldu!</div>
+</div>
+<div class="spam-popup-content">
+<p>📱 Aynı telefon numarası ile günde en fazla <strong>5 sipariş</strong> verilebilir.</p>
+</div>
+<div class="spam-popup-footer">
+<span>🕐</span>
+<p>Yarın tekrar sipariş verebilirsiniz!</p>
+</div>
+</div>
+</div>
+<style>
+.spam-popup-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:9999;justify-content:center;align-items:center;animation:overlayGir 0.3s ease;}
+.spam-popup-box{background:linear-gradient(135deg,#ffc107 0%,#ffb300 100%);border-radius:16px;padding:25px;max-width:400px;width:90%;box-shadow:0 10px 40px rgba(0,0,0,0.3);animation:popupGir 0.4s ease;border:2px solid #ffd54f;}
+.spam-popup-header{display:flex;align-items:center;gap:15px;margin-bottom:15px;}
+.spam-popup-icon{background:#fff;width:50px;height:50px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:28px;box-shadow:0 4px 15px rgba(0,0,0,0.1);}
+.spam-popup-title{font-size:20px;font-weight:900;color:#5d4037;}
+.spam-popup-content{background:rgba(255,255,255,0.35);border-radius:12px;padding:15px;margin-bottom:15px;}
+.spam-popup-content p{color:#5d4037;font-size:15px;font-weight:600;margin:0;line-height:1.6;}
+.spam-popup-content strong{color:#d84315;font-size:18px;}
+.spam-popup-footer{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,0.4);border-radius:10px;padding:12px 15px;}
+.spam-popup-footer span{font-size:24px;}
+.spam-popup-footer p{color:#5d4037;font-size:14px;font-weight:600;margin:0;}
+@keyframes overlayGir{0%{opacity:0}100%{opacity:1}}
+@keyframes popupGir{0%{opacity:0;transform:scale(0.8) translateY(-20px)}100%{opacity:1;transform:scale(1) translateY(0)}}
+@keyframes popupCik{0%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(0.8)}}
+@media(max-width:480px){.spam-popup-box{padding:20px;}.spam-popup-icon{width:40px;height:40px;font-size:22px;}.spam-popup-title{font-size:17px;}.spam-popup-content p{font-size:14px;}.spam-popup-content strong{font-size:16px;}.spam-popup-footer p{font-size:13px;}}
+</style>
+
+<button class="siparisBtn" onclick="validateForm(); return false;">🛒 Sipariş Ver</button>
+
+<!-- WhatsApp Butonu - Sabit Yuvarlak -->
+<a href="https://wa.me/905392565373" target="_blank" class="whatsappFloatBtn">
+<svg viewBox="0 0 32 32" width="28" height="28"><path fill="#fff" d="M16 0C7.163 0 0 7.163 0 16c0 2.837.736 5.502 2.022 7.818L0 32l8.413-2.012A15.924 15.924 0 0016 32c8.837 0 16-7.163 16-16S24.837 0 16 0zm8.082 22.584c-.342.964-1.985 1.843-2.732 1.958-.747.116-1.693.164-2.732-.171-.629-.203-1.437-.474-2.473-.929-4.355-1.916-7.198-6.309-7.416-6.601-.219-.292-1.785-2.375-1.785-4.532s1.13-3.217 1.53-3.657c.401-.44.875-.55 1.167-.55.292 0 .584.003.839.015.269.013.629-.102.984.751.356.854 1.212 2.961 1.319 3.178.107.219.178.474.036.766-.143.292-.214.474-.423.729-.209.256-.44.571-.629.766-.209.219-.427.456-.183.893.244.438 1.084 1.789 2.329 2.898 1.601 1.426 2.95 1.866 3.369 2.076.419.209.663.175.907-.107.244-.281 1.039-1.212 1.317-1.63.277-.419.554-.35.934-.209.379.14 2.412 1.138 2.825 1.345.413.206.688.31.788.478.102.167.102.964-.24 1.928z"/></svg>
+</a>
+<style>
+.whatsappFloatBtn{position:fixed;bottom:100px;right:calc(50% - 384px + 10px);width:60px;height:60px;background:#25D366;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 15px rgba(37,211,102,0.5);z-index:9999;transition:transform 0.3s;}
+.whatsappFloatBtn:hover{transform:scale(1.1);background:#1da851;}
+@media(max-width:768px){.whatsappFloatBtn{right:15px;bottom:90px;}}
+</style>
+<script>
+(function(){
+var waBtn=document.querySelector('.whatsappFloatBtn');
+var sipBtn=document.querySelector('.siparisBtn');
+if(!waBtn||!sipBtn)return;
+function checkPos(){
+var sipRect=sipBtn.getBoundingClientRect();
+var winH=window.innerHeight;
+var minBottom=winH-sipRect.top+10;
+if(minBottom>100){waBtn.style.bottom=minBottom+'px';}
+else{waBtn.style.bottom='100px';}
+}
+window.addEventListener('scroll',checkPos);
+window.addEventListener('resize',checkPos);
+checkPos();
+})();
+</script></div>
+<div style="width:100%;max-width:768px;margin:0 auto;">
+<div style="width:100%;margin:0;padding:0;line-height:0;">
+<img id="bottomImage" src="" alt="" style="width:100%;height:auto;display:block;border-radius:0;">
+</div>
+</div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+<script>
+// Firebase Config
+const firebaseConfig = {
+  apiKey: "AIzaSyBiEXctGsBTCHpuFtQMTDU-uYsuxvASR8I",
+  authDomain: "hizlikargo-93a30.firebaseapp.com",
+  databaseURL: "https://hizlikargo-93a30-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "hizlikargo-93a30",
+  storageBucket: "hizlikargo-93a30.firebasestorage.app",
+  messagingSenderId: "604815462602",
+  appId: "1:604815462602:web:8ca69b66610618e5136433"
+};
+firebase.initializeApp(firebaseConfig);
+var database = firebase.database();
+
+const ilceler = {
+    adana: ['Aladağ', 'Ceyhan', 'Çukurova', 'Feke', 'İmamoğlu', 'Karaisalı', 'Karataş', 'Kozan', 'Pozantı', 'Saimbeyli', 'Sarıçam', 'Seyhan', 'Tufanbeyli', 'Yumurtalık', 'Yüreğir'],
+    adiyaman: ['Besni', 'Çelikhan', 'Gerger', 'Gölbaşı', 'Kahta', 'Merkez', 'Samsat', 'Sincik', 'Tut'],
+    afyonkarahisar: ['Başmakçı', 'Bayat', 'Bolvadin', 'Çay', 'Çobanlar', 'Dazkırı', 'Dinar', 'Emirdağ', 'Evciler', 'Hocalar', 'İhsaniye', 'İscehisar', 'Kızılören', 'Merkez', 'Sandıklı', 'Sinanpaşa', 'Sultandağı', 'Şuhut'],
+    agri: ['Diyadin', 'Doğubayazıt', 'Eleşkirt', 'Hamur', 'Merkez', 'Patnos', 'Taşlıçay', 'Tutak'],
+    aksaray: ['Ağaçören', 'Eskil', 'Gülağaç', 'Güzelyurt', 'Merkez', 'Ortaköy', 'Sarıyahşi'],
+    amasya: ['Göynücek', 'Gümüşhacıköy', 'Hamamözü', 'Merkez', 'Merzifon', 'Suluova', 'Taşova'],
+    ankara: ['Akyurt', 'Altındağ', 'Ayaş', 'Bala', 'Beypazarı', 'Çamlıdere', 'Çankaya', 'Çubuk', 'Elmadağ', 'Etimesgut', 'Evren', 'Gölbaşı', 'Güdül', 'Haymana', 'Kahramankazan', 'Kalecik', 'Keçiören', 'Kızılcahamam', 'Mamak', 'Nallıhan', 'Polatlı', 'Pursaklar', 'Sincan', 'Şereflikoçhisar', 'Yenimahalle'],
+    antalya: ['Akseki', 'Aksu', 'Alanya', 'Demre', 'Döşemealtı', 'Elmalı', 'Finike', 'Gazipaşa', 'Gündoğmuş', 'İbradı', 'Kaş', 'Kemer', 'Kepez', 'Konyaaltı', 'Korkuteli', 'Kumluca', 'Manavgat', 'Muratpaşa', 'Serik'],
+    ardahan: ['Çıldır', 'Damal', 'Göle', 'Hanak', 'Merkez', 'Posof'],
+    artvin: ['Ardanuç', 'Arhavi', 'Borçka', 'Hopa', 'Merkez', 'Murgul', 'Şavşat', 'Yusufeli'],
+    aydin: ['Bozdoğan', 'Buharkent', 'Çine', 'Didim', 'Efeler', 'Germencik', 'İncirliova', 'Karacasu', 'Karpuzlu', 'Koçarlı', 'Köşk', 'Kuşadası', 'Kuyucak', 'Nazilli', 'Söke', 'Sultanhisar', 'Yenipazar'],
+    balikesir: ['Altıeylül', 'Ayvalık', 'Balya', 'Bandırma', 'Bigadiç', 'Burhaniye', 'Dursunbey', 'Edremit', 'Erdek', 'Gömeç', 'Gönen', 'Havran', 'İvrindi', 'Karesi', 'Kepsut', 'Manyas', 'Marmara', 'Savaştepe', 'Sındırgı', 'Susurluk'],
+    bartin: ['Amasra', 'Kurucaşile', 'Merkez', 'Ulus'],
+    batman: ['Beşiri', 'Gercüş', 'Hasankeyf', 'Kozluk', 'Merkez', 'Sason'],
+    bayburt: ['Aydıntepe', 'Demirözü', 'Merkez'],
+    bilecik: ['Bozüyük', 'Gölpazarı', 'İnhisar', 'Merkez', 'Osmaneli', 'Pazaryeri', 'Söğüt', 'Yenipazar'],
+    bingol: ['Adaklı', 'Genç', 'Karlıova', 'Kiğı', 'Merkez', 'Solhan', 'Yayladere', 'Yedisu'],
+    bitlis: ['Adilcevaz', 'Ahlat', 'Güroymak', 'Hizan', 'Merkez', 'Mutki', 'Tatvan'],
+    bolu: ['Dörtdivan', 'Gerede', 'Göynük', 'Kıbrıscık', 'Mengen', 'Merkez', 'Mudurnu', 'Seben', 'Yeniçağa'],
+    burdur: ['Ağlasun', 'Altınyayla', 'Bucak', 'Çavdır', 'Çeltikçi', 'Gölhisar', 'Karamanlı', 'Kemer', 'Merkez', 'Tefenni', 'Yeşilova'],
+    bursa: ['Büyükorhan', 'Gemlik', 'Gürsu', 'Harmancık', 'İnegöl', 'İznik', 'Karacabey', 'Keles', 'Kestel', 'Mudanya', 'Mustafakemalpaşa', 'Nilüfer', 'Orhaneli', 'Orhangazi', 'Osmangazi', 'Yenişehir', 'Yıldırım'],
+    canakkale: ['Ayvacık', 'Bayramiç', 'Biga', 'Bozcaada', 'Çan', 'Eceabat', 'Ezine', 'Gelibolu', 'Gökçeada', 'Lapseki', 'Merkez', 'Yenice'],
+    cankiri: ['Atkaracalar', 'Bayramören', 'Çerkeş', 'Eldivan', 'Ilgaz', 'Kızılırmak', 'Korgun', 'Kurşunlu', 'Merkez', 'Orta', 'Şabanözü', 'Yapraklı'],
+    corum: ['Alaca', 'Bayat', 'Boğazkale', 'Dodurga', 'İskilip', 'Kargı', 'Laçin', 'Mecitözü', 'Merkez', 'Oğuzlar', 'Ortaköy', 'Osmancık', 'Sungurlu', 'Uğurludağ'],
+    denizli: ['Acıpayam', 'Babadağ', 'Baklan', 'Bekilli', 'Beyağaç', 'Bozkurt', 'Buldan', 'Çal', 'Çameli', 'Çardak', 'Çivril', 'Güney', 'Honaz', 'Kale', 'Merkezefendi', 'Pamukkale', 'Sarayköy', 'Serinhisar', 'Tavas'],
+    diyarbakir: ['Bağlar', 'Bismil', 'Çermik', 'Çınar', 'Çüngüş', 'Dicle', 'Eğil', 'Ergani', 'Hani', 'Hazro', 'Kayapınar', 'Kocaköy', 'Kulp', 'Lice', 'Silvan', 'Sur', 'Yenişehir'],
+    duzce: ['Akçakoca', 'Cumayeri', 'Çilimli', 'Gölyaka', 'Gümüşova', 'Kaynaşlı', 'Merkez', 'Yığılca'],
+    edirne: ['Enez', 'Havsa', 'İpsala', 'Keşan', 'Lalapaşa', 'Meriç', 'Merkez', 'Süloğlu', 'Uzunköprü'],
+    elazig: ['Ağın', 'Alacakaya', 'Arıcak', 'Baskil', 'Karakoçan', 'Keban', 'Kovancılar', 'Maden', 'Merkez', 'Palu', 'Sivrice'],
+    erzincan: ['Çayırlı', 'İliç', 'Kemah', 'Kemaliye', 'Merkez', 'Otlukbeli', 'Refahiye', 'Tercan', 'Üzümlü'],
+    erzurum: ['Aşkale', 'Aziziye', 'Çat', 'Hınıs', 'Horasan', 'İspir', 'Karaçoban', 'Karayazı', 'Köprüköy', 'Narman', 'Oltu', 'Olur', 'Palandöken', 'Pasinler', 'Pazaryolu', 'Şenkaya', 'Tekman', 'Tortum', 'Uzundere', 'Yakutiye'],
+    eskisehir: ['Alpu', 'Beylikova', 'Çifteler', 'Günyüzü', 'Han', 'İnönü', 'Mahmudiye', 'Mihalgazi', 'Mihalıççık', 'Odunpazarı', 'Sarıcakaya', 'Seyitgazi', 'Sivrihisar', 'Tepebaşı'],
+    gaziantep: ['Araban', 'İslahiye', 'Karkamış', 'Nizip', 'Nurdağı', 'Oğuzeli', 'Şahinbey', 'Şehitkamil', 'Yavuzeli'],
+    giresun: ['Alucra', 'Bulancak', 'Çamoluk', 'Çanakçı', 'Dereli', 'Doğankent', 'Espiye', 'Eynesil', 'Görele', 'Güce', 'Keşap', 'Merkez', 'Piraziz', 'Şebinkarahisar', 'Tirebolu', 'Yağlıdere'],
+    gumushane: ['Kelkit', 'Köse', 'Kürtün', 'Merkez', 'Şiran', 'Torul'],
+    hakkari: ['Çukurca', 'Merkez', 'Şemdinli', 'Yüksekova'],
+    hatay: ['Altınözü', 'Antakya', 'Arsuz', 'Belen', 'Defne', 'Dörtyol', 'Erzin', 'Hassa', 'İskenderun', 'Kırıkhan', 'Kumlu', 'Payas', 'Reyhanlı', 'Samandağ', 'Yayladağı'],
+    igdir: ['Aralık', 'Karakoyunlu', 'Merkez', 'Tuzluca'],
+    isparta: ['Aksu', 'Atabey', 'Eğirdir', 'Gelendost', 'Gönen', 'Keçiborlu', 'Merkez', 'Senirkent', 'Sütçüler', 'Şarkikaraağaç', 'Uluborlu', 'Yalvaç', 'Yenişarbademli'],
+    istanbul: ['Adalar', 'Arnavutköy', 'Ataşehir', 'Avcılar', 'Bağcılar', 'Bahçelievler', 'Bakırköy', 'Başakşehir', 'Bayrampaşa', 'Beşiktaş', 'Beykoz', 'Beylikdüzü', 'Beyoğlu', 'Büyükçekmece', 'Çatalca', 'Çekmeköy', 'Esenler', 'Esenyurt', 'Eyüpsultan', 'Fatih', 'Gaziosmanpaşa', 'Güngören', 'Kadıköy', 'Kağıthane', 'Kartal', 'Küçükçekmece', 'Maltepe', 'Pendik', 'Sancaktepe', 'Sarıyer', 'Silivri', 'Sultanbeyli', 'Sultangazi', 'Şile', 'Şişli', 'Tuzla', 'Ümraniye', 'Üsküdar', 'Zeytinburnu'],
+    izmir: ['Aliağa', 'Balçova', 'Bayındır', 'Bayraklı', 'Bergama', 'Beydağ', 'Bornova', 'Buca', 'Çeşme', 'Çiğli', 'Dikili', 'Foça', 'Gaziemir', 'Güzelbahçe', 'Karabağlar', 'Karaburun', 'Karşıyaka', 'Kemalpaşa', 'Kınık', 'Kiraz', 'Konak', 'Menderes', 'Menemen', 'Narlıdere', 'Ödemiş', 'Seferihisar', 'Selçuk', 'Tire', 'Torbalı', 'Urla'],
+    kahramanmaras: ['Afşin', 'Andırın', 'Çağlayancerit', 'Dulkadiroğlu', 'Ekinözü', 'Elbistan', 'Göksun', 'Nurhak', 'Onikişubat', 'Pazarcık', 'Türkoğlu'],
+    karabuk: ['Eflani', 'Eskipazar', 'Merkez', 'Ovacık', 'Safranbolu', 'Yenice'],
+    karaman: ['Ayrancı', 'Başyayla', 'Ermenek', 'Kazımkarabekir', 'Merkez', 'Sarıveliler'],
+    kars: ['Akyaka', 'Arpaçay', 'Digor', 'Kağızman', 'Merkez', 'Sarıkamış', 'Selim', 'Susuz'],
+    kastamonu: ['Abana', 'Ağlı', 'Araç', 'Azdavay', 'Bozkurt', 'Cide', 'Çatalzeytin', 'Daday', 'Devrekani', 'Doğanyurt', 'Hanönü', 'İhsangazi', 'İnebolu', 'Küre', 'Merkez', 'Pınarbaşı', 'Seydiler', 'Şenpazar', 'Taşköprü', 'Tosya'],
+    kayseri: ['Akkışla', 'Bünyan', 'Develi', 'Felahiye', 'Hacılar', 'İncesu', 'Kocasinan', 'Melikgazi', 'Özvatan', 'Pınarbaşı', 'Sarıoğlan', 'Sarız', 'Talas', 'Tomarza', 'Yahyalı', 'Yeşilhisar'],
+    kilis: ['Elbeyli', 'Merkez', 'Musabeyli', 'Polateli'],
+    kirikkale: ['Bahşılı', 'Balışeyh', 'Çelebi', 'Delice', 'Karakeçili', 'Keskin', 'Merkez', 'Sulakyurt', 'Yahşihan'],
+    kirklareli: ['Babaeski', 'Demirköy', 'Kofçaz', 'Lüleburgaz', 'Merkez', 'Pehlivanköy', 'Pınarhisar', 'Vize'],
+    kirsehir: ['Akçakent', 'Akpınar', 'Boztepe', 'Çiçekdağı', 'Kaman', 'Merkez', 'Mucur'],
+    kocaeli: ['Başiskele', 'Çayırova', 'Darıca', 'Derince', 'Dilovası', 'Gebze', 'Gölcük', 'İzmit', 'Kandıra', 'Karamürsel', 'Kartepe', 'Körfez'],
+    konya: ['Ahırlı', 'Akören', 'Akşehir', 'Altınekin', 'Beyşehir', 'Bozkır', 'Cihanbeyli', 'Çeltik', 'Çumra', 'Derbent', 'Derebucak', 'Doğanhisar', 'Emirgazi', 'Ereğli', 'Güneysınır', 'Hadim', 'Halkapınar', 'Hüyük', 'Ilgın', 'Kadınhanı', 'Karapınar', 'Karatay', 'Kulu', 'Meram', 'Sarayönü', 'Selçuklu', 'Seydişehir', 'Taşkent', 'Tuzlukçu', 'Yalıhüyük', 'Yunak'],
+    kutahya: ['Altıntaş', 'Aslanapa', 'Çavdarhisar', 'Domaniç', 'Dumlupınar', 'Emet', 'Gediz', 'Hisarcık', 'Merkez', 'Pazarlar', 'Simav', 'Şaphane', 'Tavşanlı'],
+    malatya: ['Akçadağ', 'Arapgir', 'Arguvan', 'Battalgazi', 'Darende', 'Doğanşehir', 'Doğanyol', 'Hekimhan', 'Kale', 'Kuluncak', 'Pütürge', 'Yazıhan', 'Yeşilyurt'],
+    manisa: ['Ahmetli', 'Akhisar', 'Alaşehir', 'Demirci', 'Gölmarmara', 'Gördes', 'Kırkağaç', 'Köprübaşı', 'Kula', 'Salihli', 'Sarıgöl', 'Saruhanlı', 'Selendi', 'Soma', 'Şehzadeler', 'Turgutlu', 'Yunusemre'],
+    mardin: ['Artuklu', 'Dargeçit', 'Derik', 'Kızıltepe', 'Mazıdağı', 'Midyat', 'Nusaybin', 'Ömerli', 'Savur', 'Yeşilli'],
+    mersin: ['Akdeniz', 'Anamur', 'Aydıncık', 'Bozyazı', 'Çamlıyayla', 'Erdemli', 'Gülnar', 'Mezitli', 'Mut', 'Silifke', 'Tarsus', 'Toroslar', 'Yenişehir'],
+    mugla: ['Bodrum', 'Dalaman', 'Datça', 'Fethiye', 'Kavaklıdere', 'Köyceğiz', 'Marmaris', 'Menteşe', 'Milas', 'Ortaca', 'Seydikemer', 'Ula', 'Yatağan'],
+    mus: ['Bulanık', 'Hasköy', 'Korkut', 'Malazgirt', 'Merkez', 'Varto'],
+    nevsehir: ['Acıgöl', 'Avanos', 'Derinkuyu', 'Gülşehir', 'Hacıbektaş', 'Kozaklı', 'Merkez', 'Ürgüp'],
+    nigde: ['Altunhisar', 'Bor', 'Çamardı', 'Çiftlik', 'Merkez', 'Ulukışla'],
+    ordu: ['Akkuş', 'Altınordu', 'Aybastı', 'Çamaş', 'Çatalpınar', 'Çaybaşı', 'Fatsa', 'Gölköy', 'Gülyalı', 'Gürgentepe', 'İkizce', 'Kabadüz', 'Kabataş', 'Korgan', 'Kumru', 'Mesudiye', 'Perşembe', 'Ulubey', 'Ünye'],
+    osmaniye: ['Bahçe', 'Düziçi', 'Hasanbeyli', 'Kadirli', 'Merkez', 'Sumbas', 'Toprakkale'],
+    rize: ['Ardeşen', 'Çamlıhemşin', 'Çayeli', 'Derepazarı', 'Fındıklı', 'Güneysu', 'Hemşin', 'İkizdere', 'İyidere', 'Kalkandere', 'Merkez', 'Pazar'],
+    sakarya: ['Adapazarı', 'Akyazı', 'Arifiye', 'Erenler', 'Ferizli', 'Geyve', 'Hendek', 'Karapürçek', 'Karasu', 'Kaynarca', 'Kocaali', 'Pamukova', 'Sapanca', 'Serdivan', 'Söğütlü', 'Taraklı'],
+    samsun: ['Alaçam', 'Asarcık', 'Atakum', 'Ayvacık', 'Bafra', 'Canik', 'Çarşamba', 'Havza', 'İlkadım', 'Kavak', 'Ladik', 'Ondokuzmayıs', 'Salıpazarı', 'Tekkeköy', 'Terme', 'Vezirköprü', 'Yakakent'],
+    sanliurfa: ['Akçakale', 'Birecik', 'Bozova', 'Ceylanpınar', 'Eyyübiye', 'Halfeti', 'Haliliye', 'Harran', 'Hilvan', 'Karaköprü', 'Siverek', 'Suruç', 'Viranşehir'],
+    siirt: ['Baykan', 'Eruh', 'Kurtalan', 'Merkez', 'Pervari', 'Şirvan', 'Tillo'],
+    sinop: ['Ayancık', 'Boyabat', 'Dikmen', 'Durağan', 'Erfelek', 'Gerze', 'Merkez', 'Saraydüzü', 'Türkeli'],
+    sirnak: ['Beytüşşebap', 'Cizre', 'Güçlükonak', 'İdil', 'Merkez', 'Silopi', 'Uludere'],
+    sivas: ['Akıncılar', 'Altınyayla', 'Divriği', 'Doğanşar', 'Gemerek', 'Gölova', 'Gürün', 'Hafik', 'İmranlı', 'Kangal', 'Koyulhisar', 'Merkez', 'Suşehri', 'Şarkışla', 'Ulaş', 'Yıldızeli', 'Zara'],
+    tekirdag: ['Çerkezköy', 'Çorlu', 'Ergene', 'Hayrabolu', 'Kapaklı', 'Malkara', 'Marmaraereğlisi', 'Muratlı', 'Saray', 'Süleymanpaşa', 'Şarköy'],
+    tokat: ['Almus', 'Artova', 'Başçiftlik', 'Erbaa', 'Merkez', 'Niksar', 'Pazar', 'Reşadiye', 'Sulusaray', 'Turhal', 'Yeşilyurt', 'Zile'],
+    trabzon: ['Akçaabat', 'Araklı', 'Arsin', 'Beşikdüzü', 'Çarşıbaşı', 'Çaykara', 'Dernekpazarı', 'Düzköy', 'Hayrat', 'Köprübaşı', 'Maçka', 'Of', 'Ortahisar', 'Şalpazarı', 'Sürmene', 'Tonya', 'Vakfıkebir', 'Yomra'],
+    tunceli: ['Çemişgezek', 'Hozat', 'Mazgirt', 'Merkez', 'Nazımiye', 'Ovacık', 'Pertek', 'Pülümür'],
+    usak: ['Banaz', 'Eşme', 'Karahallı', 'Merkez', 'Sivaslı', 'Ulubey'],
+    van: ['Bahçesaray', 'Başkale', 'Çaldıran', 'Çatak', 'Edremit', 'Erciş', 'Gevaş', 'Gürpınar', 'İpekyolu', 'Muradiye', 'Özalp', 'Saray', 'Tuşba'],
+    yalova: ['Altınova', 'Armutlu', 'Çınarcık', 'Çiftlikköy', 'Merkez', 'Termal'],
+    yozgat: ['Akdağmadeni', 'Aydıncık', 'Boğazlıyan', 'Çandır', 'Çayıralan', 'Çekerek', 'Kadışehri', 'Merkez', 'Saraykent', 'Sarıkaya', 'Sorgun', 'Şefaatli', 'Yenifakılı', 'Yerköy'],
+    zonguldak: ['Alaplı', 'Çaycuma', 'Devrek', 'Ereğli', 'Gökçebey', 'Kilimli', 'Kozlu', 'Merkez']
+};
+
+function updateIlceler() {
+    const ilSelect = document.getElementById('il-select');
+    const ilceSelect = document.getElementById('ilce-select');
+    const selectedIl = ilSelect.value;
+    
+    ilceSelect.innerHTML = '<option value="">İlçe Seçiniz</option>';
+    
+    if (selectedIl && ilceler[selectedIl]) {
+        ilceler[selectedIl].forEach(ilce => {
+            const option = document.createElement('option');
+            option.value = ilce.toLowerCase();
+            option.textContent = ilce;
+            ilceSelect.appendChild(option);
+        });
+    }
+}
+
+var isTopOpen = true;
+var isLeftOpen = true;
+
+window.onload = function() {
+    // KENDİM İÇİN KONTROLÜ - Tamamen gizle
+    var kendimDurum = localStorage.getItem("kendim10_durum");
+    if(kendimDurum === "kapali"){
+        document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100vh;background:#fff;"><h1 style="color:#ccc;font-size:24px;">Bu sayfa şu an kapalı</h1></div>';
+        return;
+    }
+    
+    // Admin için her şey açık - çekmeceler açık başlasın
+    document.getElementById("topDrawer").classList.add("open");
+    document.getElementById("toggleTopBtn").textContent = "↑";
+    document.getElementById("leftDrawer").classList.add("open");
+    loadSavedImages();
+    loadSavedData();
+};
+
+function toggleTopDrawer() {
+    var topDrawer = document.getElementById("topDrawer");
+    var btn = document.getElementById("toggleTopBtn");
+    
+    if (isTopOpen) {
+        topDrawer.classList.remove("open");
+        btn.textContent = "↓";
+        isTopOpen = false;
+    } else {
+        topDrawer.classList.add("open");
+        btn.textContent = "↑";
+        isTopOpen = true;
+    }
+}
+
+function toggleLeftDrawer() {
+    var leftDrawer = document.getElementById("leftDrawer");
+    
+    if (isLeftOpen) {
+        leftDrawer.classList.remove("open");
+        isLeftOpen = false;
+    } else {
+        leftDrawer.classList.add("open");
+        isLeftOpen = true;
+    }
+}
+
+var pageId = 'sayfa10';
+
+function loadImage(event, imgId) {
+    const file = event.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const statusDiv = document.getElementById(imgId + 'Status');
+            statusDiv.innerHTML = '<span style="color:#28a745;font-size:16px;font-weight:900;margin-right:8px;">✓</span><span style="color:#28a745;font-size:12px;font-weight:900;">Görsel yüklendi</span><span onclick="deleteImage(event, \'' + imgId + '\')" style="color:#dc3545;font-size:12px;font-weight:900;margin-left:8px;cursor:pointer;">Sil</span>';
+            statusDiv.onclick = null;
+            
+            if (imgId === 'bottomImg1') {
+                document.getElementById('bottomImage').src = e.target.result;
+            } else if (imgId.startsWith('topImg')) {
+                const imgNum = imgId.replace('topImg', '');
+                document.getElementById('topImage' + imgNum).src = e.target.result;
+            }
+            localStorage.setItem(pageId + '_' + imgId, e.target.result);
+        };
+        reader.readAsDataURL(file);
+    }
+}
+
+function deleteImage(event, imgId) {
+    event.stopPropagation();
+    document.getElementById(imgId).value = '';
+    const statusDiv = document.getElementById(imgId + 'Status');
+    statusDiv.innerHTML = '<span style="color:#dc3545;font-size:12px;font-weight:900;">Görsel yüklenmedi</span>';
+    statusDiv.onclick = function() { document.getElementById(imgId).click(); };
+    
+    if (imgId === 'bottomImg1') {
+        document.getElementById('bottomImage').src = '';
+    } else if (imgId.startsWith('topImg')) {
+        const imgNum = imgId.replace('topImg', '');
+        document.getElementById('topImage' + imgNum).src = '';
+    }
+    localStorage.removeItem(pageId + '_' + imgId);
+}
+
+function loadSavedImages() {
+    var imgIds = ['topImg1','topImg2','topImg3','topImg4','topImg5','topImg6','topImg7','topImg8','topImg9','topImg10','topImg11','topImg12','topImg13','topImg14','topImg15','bottomImg1'];
+    imgIds.forEach(function(imgId) {
+        var saved = localStorage.getItem(pageId + '_' + imgId);
+        if (saved) {
+            var statusDiv = document.getElementById(imgId + 'Status');
+            statusDiv.innerHTML = '<span style="color:#28a745;font-size:16px;font-weight:900;margin-right:8px;">✓</span><span style="color:#28a745;font-size:12px;font-weight:900;">Görsel yüklendi</span><span onclick="deleteImage(event, \'' + imgId + '\')" style="color:#dc3545;font-size:12px;font-weight:900;margin-left:8px;cursor:pointer;">Sil</span>';
+            statusDiv.onclick = null;
+            if (imgId === 'bottomImg1') {
+                document.getElementById('bottomImage').src = saved;
+            } else if (imgId.startsWith('topImg')) {
+                var imgNum = imgId.replace('topImg', '');
+                document.getElementById('topImage' + imgNum).src = saved;
+            }
+        }
+    });
+}
+
+function kaydetFiyat1() {
+    const fiyat = document.getElementById('fiyat1Input').value;
+    if (fiyat) {
+        document.getElementById('fiyat1Display').textContent = fiyat + 'TL';
+        document.getElementById('fiyat1Check').style.display = 'block';
+    }
+}
+
+function kaydetFiyat2() {
+    const fiyat = document.getElementById('fiyat2Input').value;
+    if (fiyat) {
+        document.getElementById('fiyat2Display').textContent = fiyat + 'TL';
+        document.getElementById('fiyat2Check').style.display = 'block';
+    }
+}
+
+function kaydetIsim1() {
+    const isim = document.getElementById('isim1Input').value;
+    if (isim) {
+        document.getElementById('isim1Display').textContent = isim;
+        document.getElementById('isim1Check').style.display = 'block';
+    }
+}
+
+function kaydetIsim2() {
+    const isim = document.getElementById('isim2Input').value;
+    if (isim) {
+        document.getElementById('isim2Display').textContent = isim;
+        document.getElementById('isim2Check').style.display = 'block';
+    }
+}
+
+function kaydetUrl() {
+    const url = document.getElementById('urlInput').value;
+    if (url.trim() !== '') {
+        document.getElementById('urlCheck').style.display = 'block';
+    }
+}
+
+function scrollToForm() {
+    const formLabel = document.querySelector('.formLabel');
+    if (formLabel) {
+        formLabel.scrollIntoView({ behavior: 'auto', block: 'start' });
+    }
+}
+
+function validateForm() {
+    let isValid = true;
+    
+    // Ad Soyad kontrolü
+    const ad = document.getElementById('adInput').value.trim();
+    const adError = document.getElementById('adError');
+    const adInput = document.getElementById('adInput');
+    if (ad === '') {
+        adError.textContent = 'Lütfen adınızı ve soyadınızı girin';
+        adError.style.display = 'block';
+        adInput.classList.add('error');
+        isValid = false;
+    } else {
+        adError.style.display = 'none';
+        adInput.classList.remove('error');
+    }
+    
+    // Telefon kontrolü
+    const telefon = document.getElementById('telefonInput').value.trim();
+    const telefonError = document.getElementById('telefonError');
+    const telefonInput = document.getElementById('telefonInput');
+    if (telefon === '' || telefon.length < 10) {
+        telefonError.textContent = 'Lütfen geçerli bir telefon numarası girin (en az 10 rakam)';
+        telefonError.style.display = 'block';
+        telefonInput.classList.add('error');
+        isValid = false;
+    } else {
+        telefonError.style.display = 'none';
+        telefonInput.classList.remove('error');
+    }
+    
+    // İl kontrolü
+    const il = document.getElementById('il-select').value;
+    const ilError = document.getElementById('ilError');
+    const ilSelect = document.getElementById('il-select');
+    if (il === '') {
+        ilError.textContent = 'Lütfen bir şehir seçin';
+        ilError.style.display = 'block';
+        ilSelect.classList.add('error');
+        isValid = false;
+    } else {
+        ilError.style.display = 'none';
+        ilSelect.classList.remove('error');
+    }
+    
+    // İlçe kontrolü
+    const ilce = document.getElementById('ilce-select').value;
+    const ilceError = document.getElementById('ilceError');
+    const ilceSelect = document.getElementById('ilce-select');
+    if (ilce === '') {
+        ilceError.textContent = 'Lütfen bir ilçe seçin';
+        ilceError.style.display = 'block';
+        ilceSelect.classList.add('error');
+        isValid = false;
+    } else {
+        ilceError.style.display = 'none';
+        ilceSelect.classList.remove('error');
+    }
+    
+    // Adres kontrolü
+    const adres = document.getElementById('adresInput').value.trim();
+    const adresError = document.getElementById('adresError');
+    const adresInput = document.getElementById('adresInput');
+    if (adres === '') {
+        adresError.textContent = 'Lütfen açık adresinizi girin';
+        adresError.style.display = 'block';
+        adresInput.classList.add('error');
+        isValid = false;
+    } else {
+        adresError.style.display = 'none';
+        adresInput.classList.remove('error');
+    }
+    
+    if (isValid) {
+        // SPAM KORUMASI: Aynı telefon günde max 5 sipariş
+        var bugun = new Date();
+        var bugunStr = bugun.getDate().toString().padStart(2,'0') + '.' + (bugun.getMonth()+1).toString().padStart(2,'0') + '.' + bugun.getFullYear();
+        
+        database.ref('siparisler').orderByChild('telefon').equalTo(telefon).once('value', function(snapshot){
+            var bugunSiparisSayisi = 0;
+            
+            snapshot.forEach(function(child){
+                var siparis = child.val();
+                if(siparis.tarih === bugunStr){
+                    bugunSiparisSayisi++;
+                }
+            });
+            
+            if(bugunSiparisSayisi >= 5){
+                var uyari = document.getElementById('spamUyari');
+                uyari.style.display = 'flex';
+                setTimeout(function(){ uyari.querySelector('.spam-popup-box').style.animation = 'popupCik 0.3s ease forwards'; setTimeout(function(){ uyari.style.display = 'none'; uyari.querySelector('.spam-popup-box').style.animation = 'popupGir 0.4s ease'; }, 300); }, 4000);
+                return;
+            }
+            
+            // Siparişi Firebase'e kaydet
+            var tarih = new Date();
+            var tarihStr = tarih.getDate().toString().padStart(2,'0') + '.' + (tarih.getMonth()+1).toString().padStart(2,'0') + '.' + tarih.getFullYear();
+            var secim = document.querySelector('input[name="secim"]:checked').value;
+            var tutar = secim === '1' ? document.getElementById('fiyat1Display').textContent : document.getElementById('fiyat2Display').textContent;
+            var odemeYontemi = document.querySelector('input[name="odeme"]:checked').value === 'nakit' ? 'Nakit' : 'Kredi Kartı';
+            var adet = secim === '1' ? '1 Adet' : '2 Adet';
+            
+            var yeniSiparis = {
+                siparisNo: '#' + Date.now(),
+                tarih: tarihStr,
+                musteri: ad,
+                telefon: telefon,
+                forum: 10,
+                tutar: tutar,
+                il: document.getElementById('il-select').options[document.getElementById('il-select').selectedIndex].text,
+                ilce: ilce,
+                adres: adres,
+                odemeYontemi: odemeYontemi,
+                adet: adet,
+                timestamp: Date.now()
+            };
+            
+            database.ref('siparisler').push(yeniSiparis);
+            
+            // Meta Pixel Lead eventi tetikle
+            if(typeof fireMetaLeadEvent === 'function'){
+                fireMetaLeadEvent();
+            }
+            
+            showSuccessModal();
+        });
+    }
+    
+    return false;
+}
+
+function showSuccessModal() {
+    const modal = document.getElementById('successModal');
+    modal.classList.add('show');
+    
+    // Havai fişek efekti
+    createConfetti();
+    
+    // 5 saniye sonra kapat
+    setTimeout(() => {
+        modal.classList.remove('show');
+    }, 5000);
+}
+
+function createConfetti() {
+    const colors = ['#28a745', '#ffc107', '#dc3545', '#17a2b8', '#6f42c1', '#fd7e14'];
+    const confettiCount = 100;
+    
+    for (let i = 0; i < confettiCount; i++) {
+        setTimeout(() => {
+            const confetti = document.createElement('div');
+            confetti.className = 'confetti';
+            confetti.style.left = Math.random() * 100 + '%';
+            confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
+            confetti.style.animationDelay = Math.random() * 0.5 + 's';
+            confetti.style.animationDuration = (Math.random() * 2 + 2) + 's';
+            document.body.appendChild(confetti);
+            
+            setTimeout(() => confetti.remove(), 4000);
+        }, i * 30);
+    }
+}
+</script>
+
+</body>
+</html>

@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Muhasebe Paneli</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:Arial,sans-serif;background:#1a1a2e;min-height:100vh;color:#fff}
+
+/* GİRİŞ EKRANI */
+#girisEkrani{position:fixed;top:0;left:0;right:0;bottom:0;background:linear-gradient(135deg,#1a1a2e 0%,#16213e 100%);display:flex;align-items:center;justify-content:center;z-index:9999}
+.girisKutu{background:#0f0f23;padding:40px;border-radius:20px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.5);border:2px solid #FFC107;max-width:400px;width:90%}
+.girisBaslik{font-size:28px;font-weight:900;color:#FFC107;margin-bottom:10px}
+.girisAltBaslik{font-size:14px;color:#888;margin-bottom:30px}
+.girisInput{width:100%;padding:15px;border:2px solid #333;border-radius:10px;background:#1a1a2e;color:#fff;font-size:16px;text-align:center;margin-bottom:15px}
+.girisInput:focus{outline:none;border-color:#FFC107}
+.girisInput::placeholder{color:#555}
+.girisBtn{width:100%;padding:15px;background:#FFC107;color:#000;border:none;border-radius:10px;font-size:18px;font-weight:900;cursor:pointer;transition:all 0.3s}
+.girisBtn:hover{background:#ffca2c;transform:scale(1.02)}
+.girisHata{color:#dc3545;font-size:13px;margin-top:10px;display:none}
+
+/* ANA PANEL */
+#anaPanel{display:none;min-height:100vh}
+.ustBar{background:#0f0f23;padding:20px;display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid #FFC107}
+.ustBarSol{display:flex;align-items:center;gap:15px}
+.logo{font-size:24px;font-weight:900;color:#FFC107}
+.logoAlt{font-size:12px;color:#888}
+.cikisBtn{background:#dc3545;color:#fff;border:none;padding:10px 20px;border-radius:8px;font-weight:bold;cursor:pointer}
+.cikisBtn:hover{background:#c82333}
+
+/* ÖZET KARTLARI */
+.ozetBar{display:grid;grid-template-columns:repeat(4,1fr);gap:15px;padding:20px;background:#16213e}
+.ozetKart{background:#0f0f23;padding:20px;border-radius:12px;text-align:center;border:1px solid #333}
+.ozetKart h3{font-size:12px;color:#888;margin-bottom:5px;text-transform:uppercase}
+.ozetKart p{font-size:28px;font-weight:900;color:#FFC107}
+
+/* FİLTRELER */
+.filtreBar{background:#0f0f23;padding:15px 20px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;border-bottom:1px solid #333}
+.filtreBtn{background:#1a1a2e;color:#fff;border:1px solid #333;padding:10px 20px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:bold}
+.filtreBtn:hover{background:#16213e;border-color:#FFC107}
+.filtreBtn.aktif{background:#FFC107;color:#000;border-color:#FFC107}
+.aramaInput{background:#1a1a2e;border:1px solid #333;color:#fff;padding:10px 15px;border-radius:8px;font-size:13px;margin-left:auto}
+.aramaInput:focus{outline:none;border-color:#FFC107}
+.aramaInput::placeholder{color:#555}
+
+/* TABLO */
+.tabloWrapper{padding:20px;overflow-x:auto}
+.faturaTablosu{width:100%;border-collapse:collapse;background:#0f0f23;border-radius:12px;overflow:hidden}
+.faturaTablosu th{background:#FFC107;color:#000;padding:15px 12px;text-align:left;font-weight:bold;font-size:12px;text-transform:uppercase}
+.faturaTablosu td{padding:12px;border-bottom:1px solid #222;font-size:13px;color:#ccc}
+.faturaTablosu tr:hover{background:#16213e}
+.faturaTablosu tr:last-child td{border-bottom:none}
+
+/* BADGE */
+.badge{padding:5px 10px;border-radius:20px;font-size:11px;font-weight:bold}
+.badge-basarili{background:#28a74533;color:#28a745}
+.badge-bekliyor{background:#ffc10733;color:#FFC107}
+
+/* BUTONLAR */
+.pdfBtn{background:#17a2b8;color:#fff;border:none;padding:6px 12px;border-radius:6px;cursor:pointer;font-size:11px;font-weight:bold}
+.pdfBtn:hover{background:#138496}
+
+/* SAĞ ÇEKMECE */
+.sagCekmece{position:fixed;right:-350px;top:0;width:350px;height:100vh;background:#0f0f23;border-left:2px solid #FFC107;z-index:1000;transition:right 0.3s ease;display:flex;flex-direction:column}
+.sagCekmece.acik{right:0}
+.sagCekmeceBaslik{background:#FFC107;color:#000;padding:20px;font-size:18px;font-weight:900;text-align:center}
+.sagCekmeceIcerik{padding:20px;flex:1;overflow-y:auto}
+.sagCekmeceKapat{position:absolute;top:15px;right:15px;background:#dc3545;color:#fff;border:none;width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:16px;font-weight:bold}
+.bilgiKutu{background:#1a1a2e;border:1px solid #333;border-radius:10px;padding:15px;margin-bottom:15px}
+.bilgiKutuBaslik{font-size:12px;color:#FFC107;font-weight:bold;margin-bottom:10px;text-transform:uppercase}
+.bilgiKutuDeger{background:#0f0f23;border:1px solid #444;border-radius:8px;padding:12px;color:#fff;font-size:13px;word-break:break-all;margin-bottom:10px}
+.kopyalaBtn{background:#FFC107;color:#000;border:none;padding:10px;border-radius:8px;font-size:12px;font-weight:bold;cursor:pointer;width:100%}
+.kopyalaBtn:hover{background:#ffca2c}
+.ayarlarBtn{position:fixed;right:0;top:50%;transform:translateY(-50%);width:40px;height:100px;background:#FFC107;color:#000;border:none;border-radius:10px 0 0 10px;font-size:11px;font-weight:900;cursor:pointer;z-index:1001;writing-mode:vertical-rl;text-orientation:mixed;transition:right 0.3s ease}
+.ayarlarBtn:hover{background:#ffca2c}
+.ayarlarBtn.acik{right:350px}
+
+/* BOŞ MESAJ */
+.bosMsg{text-align:center;padding:60px;color:#555;font-size:16px}
+.bosMsg span{font-size:60px;display:block;margin-bottom:20px}
+
+/* RESPONSIVE */
+@media(max-width:768px){
+.ozetBar{grid-template-columns:repeat(2,1fr)}
+.filtreBar{flex-direction:column}
+.aramaInput{margin-left:0;width:100%}
+}
+</style>
+</head>
+<body>
+
+<!-- GİRİŞ EKRANI -->
+<div id="girisEkrani">
+<div class="girisKutu">
+<div class="girisBaslik">🔐 MUHASEBE PANELİ</div>
+<div class="girisAltBaslik">Giriş yapmak için şifrenizi girin</div>
+<input type="password" id="sifreInput" class="girisInput" placeholder="Şifre" onkeypress="if(event.key==='Enter')girisYap()">
+<button class="girisBtn" onclick="girisYap()">GİRİŞ YAP</button>
+<div class="girisHata" id="girisHata">❌ Şifre yanlış!</div>
+</div>
+</div>
+
+<!-- ANA PANEL -->
+<div id="anaPanel">
+<div class="ustBar">
+<div class="ustBarSol">
+<div>
+<div class="logo">🧾 MUHASEBE PANELİ</div>
+<div class="logoAlt">Kesilen Faturalar</div>
+</div>
+</div>
+<button class="cikisBtn" onclick="cikisYap()">ÇIKIŞ YAP</button>
+</div>
+
+<!-- SAĞ ÇEKMECE BUTONU -->
+<button class="ayarlarBtn" id="ayarlarBtn" onclick="sagCekmeceToggle()">AYARLAR</button>
+
+<!-- SAĞ ÇEKMECE -->
+<div class="sagCekmece" id="sagCekmece">
+<div class="sagCekmeceBaslik">⚙️ MUHASEBECİ AYARLARI</div>
+<div class="sagCekmeceIcerik">
+
+<div class="bilgiKutu">
+<div class="bilgiKutuBaslik">🔗 Muhasebeci Linki</div>
+<div class="bilgiKutuDeger" id="muhasebeciUrl">muhasebeci.html</div>
+<button class="kopyalaBtn" onclick="urlKopyala()">📋 LİNKİ KOPYALA</button>
+</div>
+
+<div class="bilgiKutu">
+<div class="bilgiKutuBaslik">🔐 Giriş Şifresi</div>
+<div class="bilgiKutuDeger" id="muhasebeciSifre">muhasebe2026</div>
+<button class="kopyalaBtn" onclick="sifreKopyala()">📋 ŞİFREYİ KOPYALA</button>
+</div>
+
+<div class="bilgiKutu" style="background:#28a74522;border-color:#28a745">
+<div class="bilgiKutuBaslik" style="color:#28a745">💡 Kullanım</div>
+<p style="font-size:12px;color:#888;line-height:1.6">
+1. Yukarıdaki linki muhasebecine gönder<br>
+2. Şifreyi de ayrıca gönder<br>
+3. Muhasebeci bu linkten giriş yapıp faturaları görebilir<br>
+4. Silme yetkisi YOK, sadece görüntüleme
+</p>
+</div>
+
+</div>
+</div>
+
+<div class="ozetBar">
+<div class="ozetKart">
+<h3>Toplam Fatura</h3>
+<p id="toplamFatura">0</p>
+</div>
+<div class="ozetKart">
+<h3>Bu Ay</h3>
+<p id="buAyFatura">0</p>
+</div>
+<div class="ozetKart">
+<h3>Toplam Tutar</h3>
+<p id="toplamTutar">₺0</p>
+</div>
+<div class="ozetKart">
+<h3>Toplam KDV</h3>
+<p id="toplamKdv">₺0</p>
+</div>
+</div>
+
+<div class="filtreBar">
+<button class="filtreBtn aktif" onclick="filtrele('tumu')">Tümü</button>
+<button class="filtreBtn" onclick="filtrele('bugun')">Bugün</button>
+<button class="filtreBtn" onclick="filtrele('buhafta')">Bu Hafta</button>
+<button class="filtreBtn" onclick="filtrele('buay')">Bu Ay</button>
+<input type="text" class="aramaInput" id="aramaInput" placeholder="🔍 Müşteri ara..." oninput="ara()">
+</div>
+
+<div class="tabloWrapper">
+<table class="faturaTablosu">
+<thead>
+<tr>
+<th>Fatura No</th>
+<th>ETTN</th>
+<th>Tarih</th>
+<th>Müşteri</th>
+<th>Tutar</th>
+<th>KDV</th>
+<th>Toplam</th>
+<th>Tip</th>
+<th>Şirket</th>
+<th>Durum</th>
+<th>PDF</th>
+</tr>
+</thead>
+<tbody id="faturaListe"></tbody>
+</table>
+</div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyBiEXctGsBTCHpuFtQMTDU-uYsuxvASR8I",
+  authDomain: "hizlikargo-93a30.firebaseapp.com",
+  databaseURL: "https://hizlikargo-93a30-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "hizlikargo-93a30",
+  storageBucket: "hizlikargo-93a30.firebasestorage.app",
+  messagingSenderId: "604815462602",
+  appId: "1:604815462602:web:8ca69b66610618e5136433"
+};
+firebase.initializeApp(firebaseConfig);
+var database = firebase.database();
+
+var SIFRE = 'muhasebe2026';
+var tumFaturalar = [];
+var aktifFiltre = 'tumu';
+
+function girisYap(){
+var sifre = document.getElementById('sifreInput').value;
+if(sifre === SIFRE){
+document.getElementById('girisEkrani').style.display = 'none';
+document.getElementById('anaPanel').style.display = 'block';
+sessionStorage.setItem('muhasebeGiris', 'true');
+faturalariYukle();
+} else {
+document.getElementById('girisHata').style.display = 'block';
+document.getElementById('sifreInput').value = '';
+setTimeout(function(){ document.getElementById('girisHata').style.display = 'none'; }, 3000);
+}
+}
+
+function cikisYap(){
+sessionStorage.removeItem('muhasebeGiris');
+document.getElementById('anaPanel').style.display = 'none';
+document.getElementById('girisEkrani').style.display = 'flex';
+document.getElementById('sifreInput').value = '';
+}
+
+function faturalariYukle(){
+var tbody = document.getElementById('faturaListe');
+tbody.innerHTML = '<tr><td colspan="11" style="text-align:center;padding:30px;color:#555;">Yükleniyor...</td></tr>';
+
+database.ref('gelenFaturalar').on('value', function(snapshot){
+tumFaturalar = [];
+
+if(!snapshot.exists()){
+tbody.innerHTML = '<tr><td colspan="11" class="bosMsg"><span>📭</span>Henüz fatura yok</td></tr>';
+ozetGuncelle();
+return;
+}
+
+snapshot.forEach(function(child){
+var data = child.val();
+data.key = child.key;
+tumFaturalar.push(data);
+});
+
+tumFaturalar.reverse();
+tabloGuncelle();
+ozetGuncelle();
+});
+}
+
+function tabloGuncelle(){
+var tbody = document.getElementById('faturaListe');
+var arama = document.getElementById('aramaInput').value.toLowerCase();
+var filtreliFaturalar = tumFaturalar.filter(function(f){
+// Arama filtresi
+if(arama && !(f.musteri||'').toLowerCase().includes(arama) && !(f.faturaNo||'').toLowerCase().includes(arama)){
+return false;
+}
+// Tarih filtresi
+if(aktifFiltre !== 'tumu'){
+var bugun = new Date();
+var faturaTarih = tarihParse(f.tarih);
+if(!faturaTarih) return false;
+
+if(aktifFiltre === 'bugun'){
+return faturaTarih.toDateString() === bugun.toDateString();
+} else if(aktifFiltre === 'buhafta'){
+var haftaOnce = new Date(bugun.getTime() - 7*24*60*60*1000);
+return faturaTarih >= haftaOnce;
+} else if(aktifFiltre === 'buay'){
+return faturaTarih.getMonth() === bugun.getMonth() && faturaTarih.getFullYear() === bugun.getFullYear();
+}
+}
+return true;
+});
+
+if(filtreliFaturalar.length === 0){
+tbody.innerHTML = '<tr><td colspan="11" class="bosMsg"><span>📭</span>Fatura bulunamadı</td></tr>';
+return;
+}
+
+tbody.innerHTML = '';
+filtreliFaturalar.forEach(function(fatura){
+var tr = document.createElement('tr');
+tr.innerHTML = '<td style="color:#FFC107;font-weight:bold">'+(fatura.faturaNo||'-')+'</td><td style="font-size:10px;color:#666">'+(fatura.ettn||'-')+'</td><td>'+(fatura.tarih||'-')+'</td><td style="color:#fff">'+(fatura.musteri||'-')+'</td><td>'+(fatura.tutar||'-')+'</td><td>'+(fatura.kdv||'-')+'</td><td style="color:#28a745;font-weight:bold">'+(fatura.toplam||'-')+'</td><td>'+(fatura.tip||'Satış')+'</td><td>'+(fatura.sirket||'-')+'</td><td><span class="badge '+(fatura.durum==='Onaylandı'?'badge-basarili':'badge-bekliyor')+'">'+(fatura.durum||'Alındı')+'</span></td><td><button class="pdfBtn" onclick="pdfIndir(\''+fatura.key+'\')">📥 PDF</button></td>';
+tbody.appendChild(tr);
+});
+}
+
+function ozetGuncelle(){
+var bugun = new Date();
+var toplamFatura = tumFaturalar.length;
+var buAyFatura = 0;
+var toplamTutar = 0;
+var toplamKdv = 0;
+
+tumFaturalar.forEach(function(f){
+var faturaTarih = tarihParse(f.tarih);
+if(faturaTarih && faturaTarih.getMonth() === bugun.getMonth() && faturaTarih.getFullYear() === bugun.getFullYear()){
+buAyFatura++;
+}
+var tutar = tutarParse(f.tutar);
+var kdv = tutarParse(f.kdv);
+toplamTutar += tutar;
+toplamKdv += kdv;
+});
+
+document.getElementById('toplamFatura').textContent = toplamFatura;
+document.getElementById('buAyFatura').textContent = buAyFatura;
+document.getElementById('toplamTutar').textContent = '₺' + toplamTutar.toLocaleString('tr-TR');
+document.getElementById('toplamKdv').textContent = '₺' + toplamKdv.toLocaleString('tr-TR');
+}
+
+function tarihParse(tarihStr){
+if(!tarihStr) return null;
+var parcalar = tarihStr.split('.');
+if(parcalar.length === 3){
+return new Date(parcalar[2], parcalar[1]-1, parcalar[0]);
+}
+return null;
+}
+
+function tutarParse(tutarStr){
+if(!tutarStr || tutarStr === '-') return 0;
+var sayi = tutarStr.replace(/[^0-9,\.]/g, '').replace(',', '.');
+return parseFloat(sayi) || 0;
+}
+
+function filtrele(filtre){
+aktifFiltre = filtre;
+document.querySelectorAll('.filtreBtn').forEach(function(btn){ btn.classList.remove('aktif'); });
+event.target.classList.add('aktif');
+tabloGuncelle();
+}
+
+function ara(){
+tabloGuncelle();
+}
+
+function pdfIndir(key){
+database.ref('gelenFaturalar/' + key).once('value', function(snapshot){
+var fatura = snapshot.val();
+if(fatura && fatura.pdfData){
+var link = document.createElement('a');
+link.href = fatura.pdfData;
+link.download = (fatura.faturaNo || 'fatura') + '.pdf';
+link.click();
+} else if(fatura && fatura.pdfUrl){
+window.open(fatura.pdfUrl, '_blank');
+} else {
+alert('❌ PDF bulunamadı!');
+}
+});
+}
+
+// SAĞ ÇEKMECE
+function sagCekmeceToggle(){
+var cekmece = document.getElementById('sagCekmece');
+var btn = document.getElementById('ayarlarBtn');
+if(cekmece.classList.contains('acik')){
+cekmece.classList.remove('acik');
+btn.classList.remove('acik');
+} else {
+cekmece.classList.add('acik');
+btn.classList.add('acik');
+// URL'i güncelle
+var currentUrl = window.location.href;
+document.getElementById('muhasebeciUrl').textContent = currentUrl;
+}
+}
+
+function sagCekmeceKapat(){
+document.getElementById('sagCekmece').classList.remove('acik');
+document.getElementById('ayarlarBtn').classList.remove('acik');
+}
+
+function urlKopyala(){
+var url = document.getElementById('muhasebeciUrl').textContent;
+navigator.clipboard.writeText(url).then(function(){
+alert('✅ Link kopyalandı!\n\n' + url);
+});
+}
+
+function sifreKopyala(){
+var sifre = document.getElementById('muhasebeciSifre').textContent;
+navigator.clipboard.writeText(sifre).then(function(){
+alert('✅ Şifre kopyalandı!\n\n' + sifre);
+});
+}
+
+// Sayfa yüklenince oturum kontrolü
+window.onload = function(){
+if(sessionStorage.getItem('muhasebeGiris') === 'true'){
+document.getElementById('girisEkrani').style.display = 'none';
+document.getElementById('anaPanel').style.display = 'block';
+faturalariYukle();
+}
+}
+</script>
+</body>
+</html>
