@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="tr">
 <head>
 <meta charset="UTF-8">
@@ -33,6 +33,10 @@ body{font-family:Arial,sans-serif;background:#1B5E20;min-height:100vh;color:#fff
 .badge-kargoda{background:#cce5ff;color:#004085}
 .badge-tamamlandi{background:#d4edda;color:#155724}
 .badge-arsiv{background:#e2e3e5;color:#383d41}
+.badge-teslim{background:#28a745;color:#fff}
+.badge-iade{background:#fd7e14;color:#fff}
+.badge-iptal{background:#dc3545;color:#fff}
+.durumSelect{padding:5px 8px;border-radius:5px;border:1px solid #ddd;font-size:11px;cursor:pointer;font-weight:bold}
 
 /* İŞLEM BUTONLARI */
 .islemBtn{padding:6px 12px;border:none;border-radius:6px;cursor:pointer;font-size:11px;font-weight:bold;margin-right:5px;white-space:nowrap;display:inline-block}
@@ -57,6 +61,19 @@ body{font-family:Arial,sans-serif;background:#1B5E20;min-height:100vh;color:#fff
 .adresPopupSil:hover{background:#c82333}
 
 /* GERİ BUTONU */
+/* STOK PANELÄ° */
+#stokPanel{background:#000;border-radius:12px;padding:15px;margin-bottom:20px}
+#stokPanel h3{color:#fff;font-size:16px;margin-bottom:15px;text-align:center}
+.stokGrid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
+.stokItem{background:#1a1a1a;border-radius:8px;padding:10px;text-align:center}
+.stokItem.uyari{background:#dc3545;animation:pulse 1s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.7}}
+.stokItem label{color:#888;font-size:11px;display:block;margin-bottom:5px}
+.stokItem input{width:60px;background:#000;border:1px solid #444;color:#28a745;padding:5px;border-radius:4px;text-align:center;font-weight:bold;font-size:14px}
+.stokItem .siparisSayi{color:#17a2b8;font-size:13px;font-weight:bold;margin-top:5px}
+.stokItem .kalanSayi{color:#28a745;font-size:13px;font-weight:bold;margin-top:3px}
+.stokItem .kalanSayi.az{color:#dc3545}
+
 .geriBtn{background:#000;color:#fff;border:none;padding:10px 20px;border-radius:8px;font-size:14px;font-weight:bold;cursor:pointer;position:fixed;bottom:20px;right:20px;z-index:100}
 .geriBtn:hover{background:#222}
 
@@ -128,29 +145,29 @@ body{font-family:Arial,sans-serif;background:#1B5E20;min-height:100vh;color:#fff
 <div class="pageTitle">📦 Sipariş Takibi</div>
 
 <!-- FORUM TABLOLARI -->
-<div id="forum1" class="forumTablo" style="display:none;"><div class="forumBaslik">FORUM 1 SİPARİŞLERİ</div><div class="tabloWrapper"><table class="siparisTablosu"><thead><tr><th>No</th><th>Tarih</th><th>Müşteri</th><th>Telefon</th><th>İl</th><th>İlçe</th><th>Adres</th><th>KDV</th><th>Ürün Adı</th><th>Adet</th><th>Ödeme</th><th>Tutar</th><th>Durum</th><th>İşlem</th></tr></thead><tbody id="forum1Liste"></tbody></table></div></div>
+<div id="forum1" class="forumTablo" style="display:none;"><div class="forumBaslik">FORUM 1 SİPARİŞLERİ</div><div class="tabloWrapper"><table class="siparisTablosu"><thead><tr><th>No</th><th>Tarih</th><th>Müşteri</th><th>Telefon</th><th>İl</th><th>İlçe</th><th>Adres</th><th>KDV</th><th>Ürün Adı</th><th>Adet</th><th>Ödeme</th><th>Tutar</th><th>Fatura</th><th>Kargo</th><th>İşlem</th></tr></thead><tbody id="forum1Liste"></tbody></table></div></div>
 
-<div id="forum2" class="forumTablo" style="display:none;"><div class="forumBaslik">FORUM 2 SİPARİŞLERİ</div><div class="tabloWrapper"><table class="siparisTablosu"><thead><tr><th>No</th><th>Tarih</th><th>Müşteri</th><th>Telefon</th><th>İl</th><th>İlçe</th><th>Adres</th><th>KDV</th><th>Ürün Adı</th><th>Adet</th><th>Ödeme</th><th>Tutar</th><th>Durum</th><th>İşlem</th></tr></thead><tbody id="forum2Liste"></tbody></table></div></div>
+<div id="forum2" class="forumTablo" style="display:none;"><div class="forumBaslik">FORUM 2 SİPARİŞLERİ</div><div class="tabloWrapper"><table class="siparisTablosu"><thead><tr><th>No</th><th>Tarih</th><th>Müşteri</th><th>Telefon</th><th>İl</th><th>İlçe</th><th>Adres</th><th>KDV</th><th>Ürün Adı</th><th>Adet</th><th>Ödeme</th><th>Tutar</th><th>Fatura</th><th>Kargo</th><th>İşlem</th></tr></thead><tbody id="forum2Liste"></tbody></table></div></div>
 
-<div id="forum3" class="forumTablo" style="display:none;"><div class="forumBaslik">FORUM 3 SİPARİŞLERİ</div><div class="tabloWrapper"><table class="siparisTablosu"><thead><tr><th>No</th><th>Tarih</th><th>Müşteri</th><th>Telefon</th><th>İl</th><th>İlçe</th><th>Adres</th><th>KDV</th><th>Ürün Adı</th><th>Adet</th><th>Ödeme</th><th>Tutar</th><th>Durum</th><th>İşlem</th></tr></thead><tbody id="forum3Liste"></tbody></table></div></div>
+<div id="forum3" class="forumTablo" style="display:none;"><div class="forumBaslik">FORUM 3 SİPARİŞLERİ</div><div class="tabloWrapper"><table class="siparisTablosu"><thead><tr><th>No</th><th>Tarih</th><th>Müşteri</th><th>Telefon</th><th>İl</th><th>İlçe</th><th>Adres</th><th>KDV</th><th>Ürün Adı</th><th>Adet</th><th>Ödeme</th><th>Tutar</th><th>Fatura</th><th>Kargo</th><th>İşlem</th></tr></thead><tbody id="forum3Liste"></tbody></table></div></div>
 
-<div id="forum4" class="forumTablo" style="display:none;"><div class="forumBaslik">FORUM 4 SİPARİŞLERİ</div><div class="tabloWrapper"><table class="siparisTablosu"><thead><tr><th>No</th><th>Tarih</th><th>Müşteri</th><th>Telefon</th><th>İl</th><th>İlçe</th><th>Adres</th><th>KDV</th><th>Ürün Adı</th><th>Adet</th><th>Ödeme</th><th>Tutar</th><th>Durum</th><th>İşlem</th></tr></thead><tbody id="forum4Liste"></tbody></table></div></div>
+<div id="forum4" class="forumTablo" style="display:none;"><div class="forumBaslik">FORUM 4 SİPARİŞLERİ</div><div class="tabloWrapper"><table class="siparisTablosu"><thead><tr><th>No</th><th>Tarih</th><th>Müşteri</th><th>Telefon</th><th>İl</th><th>İlçe</th><th>Adres</th><th>KDV</th><th>Ürün Adı</th><th>Adet</th><th>Ödeme</th><th>Tutar</th><th>Fatura</th><th>Kargo</th><th>İşlem</th></tr></thead><tbody id="forum4Liste"></tbody></table></div></div>
 
-<div id="forum5" class="forumTablo" style="display:none;"><div class="forumBaslik">FORUM 5 SİPARİŞLERİ</div><div class="tabloWrapper"><table class="siparisTablosu"><thead><tr><th>No</th><th>Tarih</th><th>Müşteri</th><th>Telefon</th><th>İl</th><th>İlçe</th><th>Adres</th><th>KDV</th><th>Ürün Adı</th><th>Adet</th><th>Ödeme</th><th>Tutar</th><th>Durum</th><th>İşlem</th></tr></thead><tbody id="forum5Liste"></tbody></table></div></div>
+<div id="forum5" class="forumTablo" style="display:none;"><div class="forumBaslik">FORUM 5 SİPARİŞLERİ</div><div class="tabloWrapper"><table class="siparisTablosu"><thead><tr><th>No</th><th>Tarih</th><th>Müşteri</th><th>Telefon</th><th>İl</th><th>İlçe</th><th>Adres</th><th>KDV</th><th>Ürün Adı</th><th>Adet</th><th>Ödeme</th><th>Tutar</th><th>Fatura</th><th>Kargo</th><th>İşlem</th></tr></thead><tbody id="forum5Liste"></tbody></table></div></div>
 
-<div id="forum6" class="forumTablo" style="display:none;"><div class="forumBaslik">FORUM 6 SİPARİŞLERİ</div><div class="tabloWrapper"><table class="siparisTablosu"><thead><tr><th>No</th><th>Tarih</th><th>Müşteri</th><th>Telefon</th><th>İl</th><th>İlçe</th><th>Adres</th><th>KDV</th><th>Ürün Adı</th><th>Adet</th><th>Ödeme</th><th>Tutar</th><th>Durum</th><th>İşlem</th></tr></thead><tbody id="forum6Liste"></tbody></table></div></div>
+<div id="forum6" class="forumTablo" style="display:none;"><div class="forumBaslik">FORUM 6 SİPARİŞLERİ</div><div class="tabloWrapper"><table class="siparisTablosu"><thead><tr><th>No</th><th>Tarih</th><th>Müşteri</th><th>Telefon</th><th>İl</th><th>İlçe</th><th>Adres</th><th>KDV</th><th>Ürün Adı</th><th>Adet</th><th>Ödeme</th><th>Tutar</th><th>Fatura</th><th>Kargo</th><th>İşlem</th></tr></thead><tbody id="forum6Liste"></tbody></table></div></div>
 
-<div id="forum7" class="forumTablo" style="display:none;"><div class="forumBaslik">FORUM 7 SİPARİŞLERİ</div><div class="tabloWrapper"><table class="siparisTablosu"><thead><tr><th>No</th><th>Tarih</th><th>Müşteri</th><th>Telefon</th><th>İl</th><th>İlçe</th><th>Adres</th><th>KDV</th><th>Ürün Adı</th><th>Adet</th><th>Ödeme</th><th>Tutar</th><th>Durum</th><th>İşlem</th></tr></thead><tbody id="forum7Liste"></tbody></table></div></div>
+<div id="forum7" class="forumTablo" style="display:none;"><div class="forumBaslik">FORUM 7 SİPARİŞLERİ</div><div class="tabloWrapper"><table class="siparisTablosu"><thead><tr><th>No</th><th>Tarih</th><th>Müşteri</th><th>Telefon</th><th>İl</th><th>İlçe</th><th>Adres</th><th>KDV</th><th>Ürün Adı</th><th>Adet</th><th>Ödeme</th><th>Tutar</th><th>Fatura</th><th>Kargo</th><th>İşlem</th></tr></thead><tbody id="forum7Liste"></tbody></table></div></div>
 
-<div id="forum8" class="forumTablo" style="display:none;"><div class="forumBaslik">FORUM 8 SİPARİŞLERİ</div><div class="tabloWrapper"><table class="siparisTablosu"><thead><tr><th>No</th><th>Tarih</th><th>Müşteri</th><th>Telefon</th><th>İl</th><th>İlçe</th><th>Adres</th><th>KDV</th><th>Ürün Adı</th><th>Adet</th><th>Ödeme</th><th>Tutar</th><th>Durum</th><th>İşlem</th></tr></thead><tbody id="forum8Liste"></tbody></table></div></div>
+<div id="forum8" class="forumTablo" style="display:none;"><div class="forumBaslik">FORUM 8 SİPARİŞLERİ</div><div class="tabloWrapper"><table class="siparisTablosu"><thead><tr><th>No</th><th>Tarih</th><th>Müşteri</th><th>Telefon</th><th>İl</th><th>İlçe</th><th>Adres</th><th>KDV</th><th>Ürün Adı</th><th>Adet</th><th>Ödeme</th><th>Tutar</th><th>Fatura</th><th>Kargo</th><th>İşlem</th></tr></thead><tbody id="forum8Liste"></tbody></table></div></div>
 
-<div id="forum9" class="forumTablo" style="display:none;"><div class="forumBaslik">FORUM 9 SİPARİŞLERİ</div><div class="tabloWrapper"><table class="siparisTablosu"><thead><tr><th>No</th><th>Tarih</th><th>Müşteri</th><th>Telefon</th><th>İl</th><th>İlçe</th><th>Adres</th><th>KDV</th><th>Ürün Adı</th><th>Adet</th><th>Ödeme</th><th>Tutar</th><th>Durum</th><th>İşlem</th></tr></thead><tbody id="forum9Liste"></tbody></table></div></div>
+<div id="forum9" class="forumTablo" style="display:none;"><div class="forumBaslik">FORUM 9 SİPARİŞLERİ</div><div class="tabloWrapper"><table class="siparisTablosu"><thead><tr><th>No</th><th>Tarih</th><th>Müşteri</th><th>Telefon</th><th>İl</th><th>İlçe</th><th>Adres</th><th>KDV</th><th>Ürün Adı</th><th>Adet</th><th>Ödeme</th><th>Tutar</th><th>Fatura</th><th>Kargo</th><th>İşlem</th></tr></thead><tbody id="forum9Liste"></tbody></table></div></div>
 
-<div id="forum10" class="forumTablo" style="display:none;"><div class="forumBaslik">FORUM 10 SİPARİŞLERİ</div><div class="tabloWrapper"><table class="siparisTablosu"><thead><tr><th>No</th><th>Tarih</th><th>Müşteri</th><th>Telefon</th><th>İl</th><th>İlçe</th><th>Adres</th><th>KDV</th><th>Ürün Adı</th><th>Adet</th><th>Ödeme</th><th>Tutar</th><th>Durum</th><th>İşlem</th></tr></thead><tbody id="forum10Liste"></tbody></table></div></div>
+<div id="forum10" class="forumTablo" style="display:none;"><div class="forumBaslik">FORUM 10 SİPARİŞLERİ</div><div class="tabloWrapper"><table class="siparisTablosu"><thead><tr><th>No</th><th>Tarih</th><th>Müşteri</th><th>Telefon</th><th>İl</th><th>İlçe</th><th>Adres</th><th>KDV</th><th>Ürün Adı</th><th>Adet</th><th>Ödeme</th><th>Tutar</th><th>Fatura</th><th>Kargo</th><th>İşlem</th></tr></thead><tbody id="forum10Liste"></tbody></table></div></div>
 
 </div>
 
-<button class="geriBtn" onclick="window.location.href='ana-sayfa-1.html'">ANA SAYFA</button>
+<button class="geriBtn" onclick="window.location.href='ana-sayfa.html'">ANA SAYFA</button>
 
 <!-- KARGO ÇEKMECESİ OVERLAY -->
 <div id="kargoOverlay" onclick="kargoCekmeceKapat()"></div>
@@ -240,7 +257,7 @@ siparisYukleFirebase(no);
 
 function siparisYukleFirebase(forumNo){
 var tbody = document.getElementById('forum'+forumNo+'Liste');
-tbody.innerHTML = '<tr><td colspan="14" style="text-align:center;padding:30px;color:#999;">Yükleniyor...</td></tr>';
+tbody.innerHTML = '<tr><td colspan="16" style="text-align:center;padding:30px;color:#999;">Yükleniyor...</td></tr>';
 
 database.ref('siparisler').orderByChild('forum').equalTo(forumNo).once('value', function(snapshot){
 tbody.innerHTML = '';
@@ -253,7 +270,7 @@ siparisler.push(data);
 });
 
 if(siparisler.length === 0){
-tbody.innerHTML = '<tr><td colspan="13" style="text-align:center;padding:30px;color:#999;">Bu forumda henüz sipariş yok</td></tr>';
+tbody.innerHTML = '<tr><td colspan="16" style="text-align:center;padding:30px;color:#999;">Bu forumda henüz sipariş yok</td></tr>';
 return;
 }
 
@@ -282,7 +299,16 @@ kargoDisabled = 'disabled style="opacity:0.5;cursor:not-allowed;"';
 
 var kdvOrani = siparis.kdvOrani || '20';
 var faturaDisabled = siparis.faturaHazir ? 'disabled style="opacity:0.5;cursor:not-allowed;"' : '';
-tr.innerHTML = '<td>'+siparis.siparisNo+'</td><td>'+siparis.tarih+'</td><td>'+siparis.musteri+'</td><td>'+siparis.telefon+'</td><td>'+(siparis.il||'-')+'</td><td>'+(siparis.ilce||'-')+'</td><td style="max-width:150px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"><span class="adresLink" onclick="adresGoster(\''+(siparis.adres||'-').replace(/'/g, "\\'")+'\', \''+siparis.key+'\')">'+(siparis.adres||'-')+'</span></td><td><select class="kdvSelect" data-key="'+siparis.key+'" onchange="kdvDegistir(this)" style="padding:5px;border-radius:5px;border:1px solid #ddd;font-size:11px;cursor:pointer;"><option value="20" '+(kdvOrani==='20'?'selected':'')+'>%20</option><option value="10" '+(kdvOrani==='10'?'selected':'')+'>%10</option><option value="1" '+(kdvOrani==='1'?'selected':'')+'>%1</option><option value="0" '+(kdvOrani==='0'?'selected':'')+'>%0</option></select></td><td>'+(siparis.urunAdi||'-')+'</td><td>'+adet+'</td><td>'+odemeYontemi+'</td><td>'+siparis.tutar+'</td><td><span class="badge '+durumClass+'">'+durum+'</span></td><td><div class="islemBtnWrapper"><button class="islemBtn faturaBtn" '+faturaDisabled+' onclick="faturaHazirla(\''+siparis.key+'\')">FATURA</button><button class="islemBtn kargoBtn" '+kargoDisabled+' onclick="kargoHazirla(\''+siparis.key+'\')">KARGO</button><button class="islemBtn silBtn" onclick="siparisiSilDirekt(\''+siparis.key+'\')">SİL</button></div></td>';
+var durumSecenekleri = ['Bekliyor', 'Kargo Bekliyor', 'Kargoya Verildi', 'Teslim Edildi', 'Iade', 'Iptal'];
+var durumDropdown = '<select class="durumSelect" data-key="'+siparis.key+'" onchange="durumDegistir(this)">';
+durumSecenekleri.forEach(function(d){
+var selected = (siparis.durum === d || (!siparis.durum && d === 'Bekliyor')) ? 'selected' : '';
+durumDropdown += '<option value="'+d+'" '+selected+'>'+d+'</option>';
+});
+durumDropdown += '</select>';
+var faturaDurum = siparis.faturaKesildi ? '<span class="badge badge-tamamlandi">Kesildi</span>' : (siparis.faturaHazir ? '<span class="badge badge-bekliyor">Bekliyor</span>' : '<span class="badge badge-gonderilmedi">-</span>');
+var kargoDurum = siparis.durum === 'Kargoya Verildi' ? '<span class="badge badge-tamamlandi">Gonderildi</span>' : (siparis.kargoHazir ? '<span class="badge badge-bekliyor">Bekliyor</span>' : '<span class="badge badge-gonderilmedi">-</span>');
+tr.innerHTML = '<td>'+siparis.siparisNo+'</td><td>'+siparis.tarih+'</td><td>'+siparis.musteri+'</td><td>'+siparis.telefon+'</td><td>'+(siparis.il||'-')+'</td><td>'+(siparis.ilce||'-')+'</td><td style="max-width:150px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"><span class="adresLink" onclick="adresGoster(\''+(siparis.adres||'-').replace(/'/g, "\\'")+'\', \''+siparis.key+'\')">'+(siparis.adres||'-')+'</span></td><td><select class="kdvSelect" data-key="'+siparis.key+'" onchange="kdvDegistir(this)" style="padding:5px;border-radius:5px;border:1px solid #ddd;font-size:11px;cursor:pointer;"><option value="20" '+(kdvOrani==='20'?'selected':'')+'>%20</option><option value="10" '+(kdvOrani==='10'?'selected':'')+'>%10</option><option value="1" '+(kdvOrani==='1'?'selected':'')+'>%1</option><option value="0" '+(kdvOrani==='0'?'selected':'')+'>%0</option></select></td><td>'+(siparis.urunAdi||'-')+'</td><td>'+adet+'</td><td>'+odemeYontemi+'</td><td>'+siparis.tutar+'</td><td>'+durumDropdown+'</td><td>'+faturaDurum+'</td><td>'+kargoDurum+'</td><td><div class="islemBtnWrapper"><button class="islemBtn faturaBtn" '+faturaDisabled+' onclick="faturaHazirla(\''+siparis.key+'\')">FATURA</button><button class="islemBtn kargoBtn" '+kargoDisabled+' onclick="kargoHazirla(\''+siparis.key+'\')">KARGO</button><button class="islemBtn silBtn" onclick="siparisiSilDirekt(\''+siparis.key+'\')">SİL</button></div></td>';
 tbody.appendChild(tr);
 });
 });
@@ -312,6 +338,7 @@ alert(silinenSayi + ' adet eski sipariş silindi!');
 
 // Sayfa yüklendiğinde Forum 1 otomatik açılsın
 window.onload = function(){
+stokYukle();
 document.getElementById("forum1").style.display = "block";
 document.querySelectorAll(".forumBtn")[0].style.background = "#28a745";
 // Sayfa hemen açılsın, veriler arka planda gelsin
@@ -445,6 +472,26 @@ alert('❌ Hata: ' + error.message);
 });
 }
 
+function durumDegistir(select){
+var key = select.dataset.key;
+var yeniDurum = select.value;
+database.ref('siparisler/' + key).update({
+durum: yeniDurum
+}).then(function(){
+console.log('Durum guncellendi: ' + yeniDurum);
+// Satir rengini guncelle
+var row = select.closest('tr');
+if(row){
+if(yeniDurum === 'Iptal') row.style.background = '#ffe6e6';
+else if(yeniDurum === 'Iade') row.style.background = '#fff3e6';
+else if(yeniDurum === 'Teslim Edildi') row.style.background = '#e6ffe6';
+else row.style.background = '';
+}
+}).catch(function(error){
+alert('Hata: ' + error.message);
+});
+}
+
 function faturaHazirla(key){
 if(!key){
 alert('Hata: Sipariş bulunamadı!');
@@ -468,3 +515,14 @@ alert('❌ Hata: ' + error.message);
 </script>
 </body>
 </html>
+
+
+
+
+
+
+
+
+
+
+

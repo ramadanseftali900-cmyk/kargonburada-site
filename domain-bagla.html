@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
@@ -247,7 +247,7 @@
 
 <div class="header">
     <h1>🌐 Domain Bağla</h1>
-    <button class="back-btn" onclick="location.href='ana-sayfa-1.html'">← Geri Dön</button>
+    <button class="back-btn" onclick="location.href='ana-sayfa.html'">← Geri Dön</button>
 </div>
 
 <div class="main">
@@ -271,11 +271,11 @@
             </div>
             <div class="table-row">
                 <span class="row-title">SSL</span>
-                <span class="badge badge-off">Bekliyor</span>
+                <span class="badge badge-on" id="badgeSSL">Aktif</span>
             </div>
             <div class="table-row">
                 <span class="row-title">DNS</span>
-                <span class="badge badge-off">Yapılmadı</span>
+                <span class="badge badge-on" id="badgeDNS">Yapıldı</span>
             </div>
         </div>
     </div>
@@ -304,7 +304,7 @@
             </div>
             <div class="input-group">
                 <label>Satın Aldığın Domain</label>
-                <input type="text" id="domainInput" placeholder="ornek.com" oninput="updateStatus()">
+                <input type="text" id="domainInput" placeholder="ornek.com" value="kargonburada.online" oninput="updateStatus()">
             </div>
         </div>
     </div>

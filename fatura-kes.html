@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="tr">
 <head>
 <meta charset="UTF-8">
@@ -331,7 +331,7 @@ body{font-family:Arial,sans-serif;background:#1B5E20;min-height:100vh;color:#fff
 </div>
 </div>
 
-<button class="geriBtn" onclick="window.location.href='ana-sayfa-1.html'">ANA SAYFA</button>
+<button class="geriBtn" onclick="window.location.href='ana-sayfa.html'">ANA SAYFA</button>
 
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
@@ -483,7 +483,7 @@ isik.classList.add('yesil');
 // Siparişleri yükle
 function siparisleriYukle(){
 var tbody = document.getElementById('siparisListe');
-tbody.innerHTML = '<tr><td colspan="14" style="text-align:center;padding:30px;color:#999;">Yükleniyor...</td></tr>';
+tbody.innerHTML = '<tr><td colspan="16" style="text-align:center;padding:30px;color:#999;">Yükleniyor...</td></tr>';
 
 database.ref('siparisler').once('value', function(snapshot){
 tbody.innerHTML = '';
@@ -499,7 +499,7 @@ siparisler.push(data);
 });
 
 if(siparisler.length === 0){
-tbody.innerHTML = '<tr><td colspan="14" style="text-align:center;padding:30px;color:#999;">Fatura bekleyen sipariş yok. Sipariş Takibi\'nde FATURA butonuna basarak sipariş ekleyin.</td></tr>';
+tbody.innerHTML = '<tr><td colspan="16" style="text-align:center;padding:30px;color:#999;">Fatura bekleyen sipariş yok. Sipariş Takibi\'nde FATURA butonuna basarak sipariş ekleyin.</td></tr>';
 return;
 }
 
@@ -512,10 +512,20 @@ var adet = siparis.adet || '1';
 if(adet === '1') adet = '1 Adet';
 if(adet === '2') adet = '2 Adet';
 var durum = siparis.faturaKesildi ? 'Faturalı' : 'Bekliyor';
+// KDV Hesaplama
+var tutarStr = siparis.tutar || '0';
+var tutarNum = parseFloat(tutarStr.replace(/[^0-9.,]/g, '').replace(',', '.')) || 0;
+var kdvOraniNum = parseInt(kdvOrani) || 20;
+var kdvCarpan = 1 + (kdvOraniNum / 100);
+var kdvHaric = tutarNum / kdvCarpan;
+var kdvTutari = tutarNum - kdvHaric;
+var kdvHaricStr = kdvHaric.toFixed(2) + ' TL';
+var kdvTutariStr = kdvTutari.toFixed(2) + ' TL';
+
 var durumClass = siparis.faturaKesildi ? 'badge-faturalandi' : 'badge-bekliyor';
 var kdvOrani = siparis.kdvOrani || '20';
 
-tr.innerHTML = '<td>'+siparis.siparisNo+'</td><td>'+siparis.tarih+'</td><td>'+siparis.musteri+'</td><td>'+siparis.telefon+'</td><td>'+(siparis.il||'-')+'</td><td>'+(siparis.ilce||'-')+'</td><td style="max-width:150px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"><span class="adresLink" onclick="adresGoster(\''+(siparis.adres||'-').replace(/'/g, "\\'")+'\')">'+( siparis.adres||'-')+'</span></td><td><select class="kdvSelect" data-key="'+siparis.key+'" onchange="kdvDegistir(this)" style="padding:5px;border-radius:5px;border:1px solid #ddd;font-size:11px;cursor:pointer;"><option value="20" '+(kdvOrani==='20'?'selected':'')+'>%20</option><option value="10" '+(kdvOrani==='10'?'selected':'')+'>%10</option><option value="1" '+(kdvOrani==='1'?'selected':'')+'>%1</option><option value="0" '+(kdvOrani==='0'?'selected':'')+'>%0</option></select></td><td>'+(siparis.urunAdi||'-')+'</td><td>'+adet+'</td><td>'+odemeYontemi+'</td><td>'+siparis.tutar+'</td><td><span class="badge '+durumClass+'">'+durum+'</span></td><td><button class="islemBtn faturaBtn" onclick="faturaKes(\''+siparis.key+'\')">FATURA</button><button class="islemBtn silBtn" onclick="siparisiSil(\''+siparis.key+'\')">SİL</button></td>';
+tr.innerHTML = '<td>'+siparis.siparisNo+'</td><td>'+siparis.tarih+'</td><td>'+siparis.musteri+'</td><td>'+siparis.telefon+'</td><td>'+(siparis.il||'-')+'</td><td>'+(siparis.ilce||'-')+'</td><td style="max-width:150px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"><span class="adresLink" onclick="adresGoster(\''+(siparis.adres||'-').replace(/'/g, "\\'")+'\')">'+( siparis.adres||'-')+'</span></td><td><select class="kdvSelect" data-key="'+siparis.key+'" onchange="kdvDegistir(this)" style="padding:5px;border-radius:5px;border:1px solid #ddd;font-size:11px;cursor:pointer;"><option value="20" '+(kdvOrani==='20'?'selected':'')+'>%20</option><option value="10" '+(kdvOrani==='10'?'selected':'')+'>%10</option><option value="1" '+(kdvOrani==='1'?'selected':'')+'>%1</option><option value="0" '+(kdvOrani==='0'?'selected':'')+'>%0</option></select></td><td>'+(siparis.urunAdi||'-')+'</td><td>'+adet+'</td><td>'+odemeYontemi+'</td><td>'+siparis.tutar+'</td><td>'+kdvHaricStr+'</td><td>'+kdvTutariStr+'</td><td><span class="badge '+durumClass+'">'+durum+'</span></td><td><button class="islemBtn faturaBtn" onclick="faturaKes(\''+siparis.key+'\')">FATURA</button><button class="islemBtn silBtn" onclick="siparisiSil(\''+siparis.key+'\')">SİL</button></td>';
 tbody.appendChild(tr);
 });
 });
@@ -704,3 +714,5 @@ siparisleriYukle();
 </script>
 </body>
 </html>
+
+

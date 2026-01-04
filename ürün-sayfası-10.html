@@ -90,6 +90,35 @@ function fireMetaLeadEvent(){
 </script>
 <!-- END META PIXEL CODE -->
 
+<!-- TIKTOK PIXEL CODE -->
+<script>
+var tiktokSettings = JSON.parse(localStorage.getItem('tiktok_pixel_settings') || '{}');
+var tiktokPixelId = tiktokSettings.pixelId || '';
+var tiktokActive = tiktokSettings.active || false;
+var tiktokEvents = tiktokSettings.events || [];
+
+if(tiktokPixelId && tiktokActive){
+    !function (w, d, t) {
+        w.TiktokAnalyticsObject=t;var ttq=w[t]=w[t]||[];ttq.methods=["page","track","identify","instances","debug","on","off","once","ready","alias","group","enableCookie","disableCookie"],ttq.setAndDefer=function(t,e){t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}};for(var i=0;i<ttq.methods.length;i++)ttq.setAndDefer(ttq,ttq.methods[i]);ttq.instance=function(t){for(var e=ttq._i[t]||[],n=0;n<ttq.methods.length;n++)ttq.setAndDefer(e,ttq.methods[n]);return e},ttq.load=function(e,n){var i="https://analytics.tiktok.com/i18n/pixel/events.js";ttq._i=ttq._i||{},ttq._i[e]=[],ttq._i[e]._u=i,ttq._t=ttq._t||{},ttq._t[e]=+new Date,ttq._o=ttq._o||{},ttq._o[e]=n||{};var o=document.createElement("script");o.type="text/javascript",o.async=!0,o.src=i+"?sdkid="+e+"&lib="+t;var a=document.getElementsByTagName("script")[0];a.parentNode.insertBefore(o,a)};
+        ttq.load(tiktokPixelId);
+        if(tiktokEvents.indexOf('PageView') > -1){ ttq.page(); }
+        if(tiktokEvents.indexOf('ViewContent') > -1){ ttq.track('ViewContent', {content_type: 'product'}); }
+    }(window, document, 'ttq');
+}
+function fireTikTokSubmitFormEvent(){
+    if(tiktokPixelId && tiktokActive && tiktokEvents.indexOf('SubmitForm') > -1){
+        if(typeof ttq !== 'undefined'){ ttq.track('SubmitForm'); }
+    }
+}
+function fireTikTokCompletePaymentEvent(){
+    if(tiktokPixelId && tiktokActive && tiktokEvents.indexOf('CompletePayment') > -1){
+        if(typeof ttq !== 'undefined'){ ttq.track('CompletePayment'); }
+    }
+}
+</script>
+<!-- END TIKTOK PIXEL CODE -->
+
+
 </head>
 <body>
 
@@ -126,7 +155,7 @@ function fireMetaLeadEvent(){
 
 <button id="toggleTopBtn" onclick="toggleTopDrawer()">↓</button>
 <div style="background:#28a745;color:#fff;width:50px;height:50px;border:none;border-radius:50%;font-size:24px;font-weight:900;display:flex;align-items:center;justify-content:center;position:fixed;right:75px;top:95px;z-index:10000;">10</div>
-<button onclick="window.location.href='ana-sayfa-1.html'" style="background:#28a745;color:#fff;width:52px;height:52px;border:none;border-radius:50%;cursor:pointer;font-size:11px;font-weight:900;display:flex;align-items:center;justify-content:center;position:fixed;right:15px;top:165px;z-index:10000;">GERİ</button>
+<button onclick="window.location.href='ana-sayfa.html'" style="background:#28a745;color:#fff;width:52px;height:52px;border:none;border-radius:50%;cursor:pointer;font-size:11px;font-weight:900;display:flex;align-items:center;justify-content:center;position:fixed;right:15px;top:165px;z-index:10000;">GERİ</button>
 <button id="adminBtn" onclick="toggleLeftDrawer()">ADMİN</button>
 
 <!-- YAN ÇEKMECE (SOL ADMİN PANELİ) -->
@@ -579,19 +608,30 @@ function updateIlceler() {
 
 var isTopOpen = true;
 var isLeftOpen = true;
+var adminGiris = localStorage.getItem('admin_giris') === 'true';
 
 window.onload = function() {
-    // KENDİM İÇİN KONTROLÜ - Tamamen gizle
-    var kendimDurum = localStorage.getItem("kendim10_durum");
-    if(kendimDurum === "kapali"){
-        document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100vh;background:#fff;"><h1 style="color:#ccc;font-size:24px;">Bu sayfa şu an kapalı</h1></div>';
-        return;
+    // ADMIN GİRİŞ KONTROLÜ
+    if(adminGiris){
+        // Admin girişi var - butonlar görünsün
+        document.getElementById("topDrawer").classList.add("open");
+        document.getElementById("toggleTopBtn").textContent = "↑";
+        document.getElementById("leftDrawer").classList.add("open");
+        document.getElementById("toggleTopBtn").style.display = "flex";
+        document.getElementById("adminBtn").style.display = "flex";
+        document.querySelector('[onclick="window.location.href=\'ana-sayfa.html\'"]').style.display = "flex";
+    } else {
+        // Admin girişi yok - butonları gizle
+        document.getElementById("topDrawer").style.display = "none";
+        document.getElementById("leftDrawer").style.display = "none";
+        document.getElementById("toggleTopBtn").style.display = "none";
+        document.getElementById("adminBtn").style.display = "none";
+        var geriBtn = document.querySelector('[onclick="window.location.href=\'ana-sayfa.html\'"]');
+        if(geriBtn) geriBtn.style.display = "none";
+        var sayfaNo = document.querySelector('[style*="right:75px"]');
+        if(sayfaNo) sayfaNo.style.display = "none";
     }
     
-    // Admin için her şey açık - çekmeceler açık başlasın
-    document.getElementById("topDrawer").classList.add("open");
-    document.getElementById("toggleTopBtn").textContent = "↑";
-    document.getElementById("leftDrawer").classList.add("open");
     loadSavedImages();
     loadSavedData();
 };
