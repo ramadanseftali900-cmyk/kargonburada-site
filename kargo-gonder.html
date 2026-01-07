@@ -1,0 +1,870 @@
+﻿<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kargo Gönder</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:Arial,sans-serif;background:#1B5E20;min-height:100vh;color:#fff}
+.container{display:block;min-height:100vh;padding:20px}
+
+.solSutun{width:450px;background:#000;position:fixed;left:-450px;top:0;height:100vh;z-index:1000;transition:left 0.3s ease;display:flex;flex-direction:column}
+.solSutun.acik{left:0}
+.solBaslik{font-size:20px;font-weight:900;color:#fff;text-align:center;padding:20px;border-bottom:2px solid #333;flex-shrink:0}
+.firmaListesi{flex:1;overflow-y:auto;padding:20px}
+
+.firmaKart{background:#1a1a1a;border-radius:10px;padding:15px;margin-bottom:15px;border:2px solid #333}
+.firmaHeader{display:flex;align-items:center;gap:10px;margin-bottom:12px;cursor:pointer}
+.durumIsik{width:14px;height:14px;border-radius:50%;flex-shrink:0}
+.durumIsik.kirmizi{background:#dc3545;box-shadow:0 0 8px #dc3545}
+.durumIsik.yesil{background:#28a745;box-shadow:0 0 8px #28a745}
+.firmaAdi{font-size:15px;font-weight:bold;color:#fff;flex:1}
+.firmaToggle{color:#888;font-size:18px}
+.firmaDetay{display:none;padding-top:10px;border-top:1px solid #333}
+.firmaDetay.acik{display:block}
+.inputGrup{margin-bottom:10px}
+.inputGrup label{display:block;font-size:11px;color:#888;margin-bottom:4px}
+.inputGrup input{width:100%;background:#000;border:1px solid #444;color:#fff;padding:8px 10px;border-radius:6px;font-size:12px}
+.inputGrup input::placeholder{color:#555}
+.inputGrup input:focus{outline:none;border-color:#28a745}
+.firmaSecBtn{background:#28a745;color:#fff;border:none;padding:10px;border-radius:6px;font-size:12px;font-weight:bold;cursor:pointer;width:100%;margin-top:5px}
+.firmaSecBtn:hover{background:#218838}
+.firmaSecBtn:disabled{background:#555;cursor:not-allowed}
+
+/* GÖNDERİCİ BİLGİLERİ */
+.gondericiBox{background:#1a1a1a;border-radius:10px;padding:15px;margin-bottom:15px;border:2px solid #28a745}
+.gondericiBaslik{font-size:13px;font-weight:bold;color:#28a745;margin-bottom:12px;text-align:center}
+.gondericiKaydetBtn{background:#28a745;color:#fff;border:none;padding:10px;border-radius:6px;font-size:12px;font-weight:bold;cursor:pointer;width:100%;margin-top:5px}
+.gondericiKaydetBtn:hover{background:#218838}
+
+.sagSutun{width:100%}
+.sagBaslik{font-size:24px;font-weight:900;margin-bottom:15px;color:#fff}
+
+/* TABLO */
+.tabloWrapper{background:#fff;border-radius:0 0 12px 12px;overflow-x:auto;box-shadow:0 4px 20px rgba(0,0,0,0.3);scrollbar-width:none;-ms-overflow-style:none}
+.tabloWrapper::-webkit-scrollbar{display:none}
+.siparisTablosu{width:100%;border-collapse:collapse;color:#000;font-size:13px}
+.siparisTablosu th{background:#000;color:#fff;padding:15px 10px;text-align:left;font-weight:bold;white-space:nowrap}
+.siparisTablosu td{padding:12px 10px;border-bottom:1px solid #eee;vertical-align:middle;white-space:nowrap}
+.siparisTablosu tr:hover{background:#f5f5f5}
+.forumBaslik{background:#000;color:#fff;padding:15px 20px;font-size:18px;font-weight:900;border-radius:12px 12px 0 0}
+
+/* ADRES POPUP */
+.adresLink{color:#1B5E20;cursor:pointer;text-decoration:underline}
+.adresLink:hover{color:#145214}
+#adresPopup{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.6);z-index:9999;display:none;align-items:center;justify-content:center}
+#adresPopup.show{display:flex}
+.adresPopupIcerik{background:#fff;padding:25px;border-radius:12px;max-width:500px;width:90%;color:#000;position:relative}
+.adresPopupBaslik{font-size:18px;font-weight:900;margin-bottom:15px;color:#1B5E20}
+.adresPopupMetin{font-size:15px;line-height:1.6;margin-bottom:20px}
+.adresPopupKapat{position:absolute;top:10px;right:15px;background:#dc3545;color:#fff;border:none;width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:16px;font-weight:bold}
+.adresPopupSil{background:#dc3545;color:#fff;border:none;padding:12px 25px;border-radius:8px;font-size:14px;font-weight:bold;cursor:pointer;width:100%}
+.adresPopupSil:hover{background:#c82333}
+
+/* DURUM BADGE'LERİ */
+.badge{padding:5px 10px;border-radius:20px;font-size:11px;font-weight:bold;white-space:nowrap}
+.badge-bekliyor{background:#fff3cd;color:#856404}
+.badge-kargoda{background:#cce5ff;color:#004085}
+
+/* İŞLEM BUTONLARI */
+.islemBtn{padding:6px 12px;border:none;border-radius:6px;cursor:pointer;font-size:11px;font-weight:bold;margin-right:5px}
+.faturaBtn{background:#17a2b8;color:#fff}
+.faturaBtn:hover{background:#138496}
+.kargoBtn{background:#28a745;color:#fff;display:inline-block}
+.kargoBtn:hover{background:#218838}
+.silBtn{background:#dc3545;color:#fff;display:inline-block}
+.silBtn:hover{background:#c82333}
+
+/* ŞİRKETLER BUTONU - Çekmeceye yapışık */
+.sirketlerBtn{position:fixed;left:0;top:50%;transform:translateY(-50%);width:40px;height:120px;background:#000;color:#fff;border:none;border-radius:0 10px 10px 0;font-size:11px;font-weight:900;cursor:pointer;z-index:1001;box-shadow:4px 0 15px rgba(0,0,0,0.3);transition:left 0.3s ease;writing-mode:vertical-rl;text-orientation:mixed}
+.sirketlerBtn:hover{background:#222}
+.sirketlerBtn.acik{left:450px}
+.bosMsg{background:rgba(255,255,255,0.1);border-radius:12px;padding:60px 40px;text-align:center;color:#aaa;font-size:16px}
+.bosMsg span{font-size:60px;display:block;margin-bottom:20px}
+
+.siparisForm{background:#fff;border-radius:12px;padding:25px;color:#000;display:none}
+.siparisForm.aktif{display:block}
+.formBaslik{font-size:18px;font-weight:900;color:#1B5E20;margin-bottom:20px;padding-bottom:10px;border-bottom:2px solid #1B5E20}
+.formGrup{margin-bottom:15px}
+.formGrup label{display:block;font-size:13px;font-weight:bold;color:#333;margin-bottom:5px}
+.formGrup input,.formGrup textarea{width:100%;padding:12px;border:2px solid #ddd;border-radius:8px;font-size:14px}
+.formGrup input:focus,.formGrup textarea:focus{outline:none;border-color:#1B5E20}
+.formGrup textarea{resize:vertical;min-height:80px}
+.formRow{display:flex;gap:15px}
+.formRow .formGrup{flex:1}
+.gonderBtn{background:#28a745;color:#fff;border:none;padding:15px 30px;border-radius:8px;font-size:16px;font-weight:900;cursor:pointer;width:100%;margin-top:10px}
+.gonderBtn:hover{background:#218838}
+.seciliFirmaInfo{background:#e8f5e9;border-radius:8px;padding:15px;margin-bottom:20px}
+.seciliFirmaInfo h4{color:#1B5E20;margin-bottom:5px}
+.seciliFirmaInfo p{color:#666;font-size:13px}
+
+.geriBtn{background:#000;color:#fff;border:none;padding:10px 20px;border-radius:8px;font-size:14px;font-weight:bold;cursor:pointer;position:fixed;bottom:20px;right:20px;z-index:100}
+.geriBtn:hover{background:#222}
+
+@media(max-width:900px){
+.container{flex-direction:column}
+.solSutun{width:100%;max-height:50vh}
+}
+</style>
+</head>
+<body>
+
+<!-- ADRES POPUP -->
+<div id="adresPopup" onclick="adresPopupKapat()">
+<div class="adresPopupIcerik" onclick="event.stopPropagation()">
+<button class="adresPopupKapat" onclick="adresPopupKapat()">✕</button>
+<div class="adresPopupBaslik">📍 Tam Adres</div>
+<div class="adresPopupMetin" id="adresPopupMetin"></div>
+<button class="adresPopupSil" onclick="siparisiSil()">🗑️ SİPARİŞİ SİL</button>
+</div>
+</div>
+
+<div class="container">
+<!-- ŞİRKETLER BUTONU -->
+<button class="sirketlerBtn" id="sirketlerBtn" onclick="cekmeceToggle()">ŞİRKETLER</button>
+
+<div class="sagSutun">
+<div class="sagBaslik">📦 Kargo Gönder Sistemi</div>
+
+<div class="forumBaslik">SİPARİŞLER</div>
+<div class="tabloWrapper">
+<table class="siparisTablosu">
+<thead>
+<tr><th>No</th><th>Tarih</th><th>Müşteri</th><th>Telefon</th><th>İl</th><th>İlçe</th><th>Adres</th><th>KDV</th><th>Ürün Adı</th><th>Adet</th><th>Ödeme</th><th>Tutar</th><th>Kargo Ödemesi</th><th>Durum</th><th id="islemBaslik">İşlem</th></tr>
+</thead>
+<tbody id="siparisListe"></tbody>
+</table>
+</div>
+</div>
+
+<div class="solSutun" id="solSutun">
+<div class="solBaslik">🚚 KARGO FİRMALARI <span style="float:right;cursor:pointer;" onclick="cekmeceKapat()">✕</span></div>
+<div class="firmaListesi">
+
+<!-- GÖNDERİCİ BİLGİLERİ -->
+<div class="gondericiBox">
+<div class="gondericiBaslik" onclick="gondericiToggle()" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center;">
+<span>📍 GÖNDERİCİ BİLGİLERİ (SENİN BİLGİLERİN)</span>
+<span id="gondericiToggleIcon">▼</span>
+</div>
+<div id="gondericiDetay" style="display:none;padding-top:15px;">
+<div class="inputGrup"><label>Ad Soyad</label><input type="text" id="gondericiAd" placeholder="Senin adın soyadın"></div>
+<div class="inputGrup"><label>Telefon</label><input type="text" id="gondericiTel" placeholder="Senin telefon numaran"></div>
+<div class="inputGrup"><label>İl</label><input type="text" id="gondericiIl" placeholder="Senin ilin"></div>
+<div class="inputGrup"><label>İlçe</label><input type="text" id="gondericiIlce" placeholder="Senin ilçen"></div>
+<div class="inputGrup"><label>Adres</label><input type="text" id="gondericiAdres" placeholder="Senin adresin"></div>
+<div class="inputGrup"><label>Vergi No</label><input type="text" id="gondericiVergi" placeholder="Vergi numarası"></div>
+<button class="gondericiKaydetBtn" onclick="gondericiKaydet()">💾 GÖNDERİCİ BİLGİLERİNİ KAYDET</button>
+</div>
+</div>
+
+<div style="border-top:2px solid #333;margin:15px 0;"></div>
+
+<div class="firmaKart" data-firma="Yurtiçi Kargo">
+<div class="firmaHeader" onclick="firmaToggle(this)">
+<div class="durumIsik kirmizi"></div>
+<span class="firmaAdi">Yurtiçi Kargo</span>
+<span class="firmaToggle">▼</span>
+</div>
+<div class="firmaDetay">
+<div class="inputGrup"><label>API Adresi</label><input type="text" class="apiAdres" placeholder="https://api.yurticikargo.com/..."></div>
+<div class="inputGrup"><label>API Key</label><input type="text" class="apiKey" placeholder="API anahtarı"></div>
+<div class="inputGrup"><label>Kullanıcı Adı</label><input type="text" class="kullaniciAdi" placeholder="Kullanıcı adı"></div>
+<div class="inputGrup"><label>Şifre</label><input type="password" class="sifre" placeholder="Şifre"></div>
+<div class="inputGrup"><label>Müşteri Kodu</label><input type="text" class="musteriKodu" placeholder="Müşteri kodu"></div>
+<div class="inputGrup"><label>Ödeme Tipi</label><select class="odemeTipi" style="width:100%;background:#000;border:1px solid #444;color:#fff;padding:8px 10px;border-radius:6px;font-size:12px;"><option value="gonderen">Gönderici Öder</option><option value="alici">Alıcı Öder (Kapıda Ödeme)</option></select></div>
+<div class="inputGrup"><label>Test Modu</label><select class="testModu" style="width:100%;background:#000;border:1px solid #444;color:#fff;padding:8px 10px;border-radius:6px;font-size:12px;"><option value="true">Açık (Test)</option><option value="false">Kapalı (Canlı)</option></select></div>
+<button class="firmaSecBtn" onclick="firmaKaydetVeSec(this)">💾 KAYDET VE SEÇ</button>
+</div>
+</div>
+
+<div class="firmaKart" data-firma="Aras Kargo">
+<div class="firmaHeader" onclick="firmaToggle(this)">
+<div class="durumIsik kirmizi"></div>
+<span class="firmaAdi">Aras Kargo</span>
+<span class="firmaToggle">▼</span>
+</div>
+<div class="firmaDetay">
+<div class="inputGrup"><label>API Adresi</label><input type="text" class="apiAdres" placeholder="https://api.araskargo.com.tr/..."></div>
+<div class="inputGrup"><label>API Key</label><input type="text" class="apiKey" placeholder="API anahtarı"></div>
+<div class="inputGrup"><label>Kullanıcı Adı</label><input type="text" class="kullaniciAdi" placeholder="Kullanıcı adı"></div>
+<div class="inputGrup"><label>Şifre</label><input type="password" class="sifre" placeholder="Şifre"></div>
+<div class="inputGrup"><label>Müşteri Kodu</label><input type="text" class="musteriKodu" placeholder="Müşteri kodu"></div>
+<div class="inputGrup"><label>Ödeme Tipi</label><select class="odemeTipi" style="width:100%;background:#000;border:1px solid #444;color:#fff;padding:8px 10px;border-radius:6px;font-size:12px;"><option value="gonderen">Gönderici Öder</option><option value="alici">Alıcı Öder (Kapıda Ödeme)</option></select></div>
+<div class="inputGrup"><label>Test Modu</label><select class="testModu" style="width:100%;background:#000;border:1px solid #444;color:#fff;padding:8px 10px;border-radius:6px;font-size:12px;"><option value="true">Açık (Test)</option><option value="false">Kapalı (Canlı)</option></select></div>
+<button class="firmaSecBtn" onclick="firmaKaydetVeSec(this)">💾 KAYDET VE SEÇ</button>
+</div>
+</div>
+
+<div class="firmaKart" data-firma="MNG Kargo">
+<div class="firmaHeader" onclick="firmaToggle(this)">
+<div class="durumIsik kirmizi"></div>
+<span class="firmaAdi">MNG Kargo</span>
+<span class="firmaToggle">▼</span>
+</div>
+<div class="firmaDetay">
+<div class="inputGrup"><label>API Adresi</label><input type="text" class="apiAdres" placeholder="https://api.mngkargo.com.tr/..."></div>
+<div class="inputGrup"><label>API Key</label><input type="text" class="apiKey" placeholder="API anahtarı"></div>
+<div class="inputGrup"><label>Kullanıcı Adı</label><input type="text" class="kullaniciAdi" placeholder="Kullanıcı adı"></div>
+<div class="inputGrup"><label>Şifre</label><input type="password" class="sifre" placeholder="Şifre"></div>
+<div class="inputGrup"><label>Müşteri Kodu</label><input type="text" class="musteriKodu" placeholder="Müşteri kodu"></div>
+<div class="inputGrup"><label>Ödeme Tipi</label><select class="odemeTipi" style="width:100%;background:#000;border:1px solid #444;color:#fff;padding:8px 10px;border-radius:6px;font-size:12px;"><option value="gonderen">Gönderici Öder</option><option value="alici">Alıcı Öder (Kapıda Ödeme)</option></select></div>
+<div class="inputGrup"><label>Test Modu</label><select class="testModu" style="width:100%;background:#000;border:1px solid #444;color:#fff;padding:8px 10px;border-radius:6px;font-size:12px;"><option value="true">Açık (Test)</option><option value="false">Kapalı (Canlı)</option></select></div>
+<button class="firmaSecBtn" onclick="firmaKaydetVeSec(this)">💾 KAYDET VE SEÇ</button>
+</div>
+</div>
+
+<div class="firmaKart" data-firma="Sürat Kargo">
+<div class="firmaHeader" onclick="firmaToggle(this)">
+<div class="durumIsik kirmizi"></div>
+<span class="firmaAdi">Sürat Kargo</span>
+<span class="firmaToggle">▼</span>
+</div>
+<div class="firmaDetay">
+<div class="inputGrup"><label>API Adresi</label><input type="text" class="apiAdres" placeholder="https://api.suratkargo.com.tr/..."></div>
+<div class="inputGrup"><label>API Key</label><input type="text" class="apiKey" placeholder="API anahtarı"></div>
+<div class="inputGrup"><label>Kullanıcı Adı</label><input type="text" class="kullaniciAdi" placeholder="Kullanıcı adı"></div>
+<div class="inputGrup"><label>Şifre</label><input type="password" class="sifre" placeholder="Şifre"></div>
+<div class="inputGrup"><label>Müşteri Kodu</label><input type="text" class="musteriKodu" placeholder="Müşteri kodu"></div>
+<div class="inputGrup"><label>Ödeme Tipi</label><select class="odemeTipi" style="width:100%;background:#000;border:1px solid #444;color:#fff;padding:8px 10px;border-radius:6px;font-size:12px;"><option value="gonderen">Gönderici Öder</option><option value="alici">Alıcı Öder (Kapıda Ödeme)</option></select></div>
+<div class="inputGrup"><label>Test Modu</label><select class="testModu" style="width:100%;background:#000;border:1px solid #444;color:#fff;padding:8px 10px;border-radius:6px;font-size:12px;"><option value="true">Açık (Test)</option><option value="false">Kapalı (Canlı)</option></select></div>
+<button class="firmaSecBtn" onclick="firmaKaydetVeSec(this)">💾 KAYDET VE SEÇ</button>
+</div>
+</div>
+
+<div class="firmaKart" data-firma="PTT Kargo">
+<div class="firmaHeader" onclick="firmaToggle(this)">
+<div class="durumIsik kirmizi"></div>
+<span class="firmaAdi">PTT Kargo</span>
+<span class="firmaToggle">▼</span>
+</div>
+<div class="firmaDetay">
+<div class="inputGrup"><label>API Adresi</label><input type="text" class="apiAdres" placeholder="https://api.ptt.gov.tr/..."></div>
+<div class="inputGrup"><label>API Key</label><input type="text" class="apiKey" placeholder="API anahtarı"></div>
+<div class="inputGrup"><label>Kullanıcı Adı</label><input type="text" class="kullaniciAdi" placeholder="Kullanıcı adı"></div>
+<div class="inputGrup"><label>Şifre</label><input type="password" class="sifre" placeholder="Şifre"></div>
+<div class="inputGrup"><label>Müşteri Kodu</label><input type="text" class="musteriKodu" placeholder="Müşteri kodu"></div>
+<div class="inputGrup"><label>Ödeme Tipi</label><select class="odemeTipi" style="width:100%;background:#000;border:1px solid #444;color:#fff;padding:8px 10px;border-radius:6px;font-size:12px;"><option value="gonderen">Gönderici Öder</option><option value="alici">Alıcı Öder (Kapıda Ödeme)</option></select></div>
+<div class="inputGrup"><label>Test Modu</label><select class="testModu" style="width:100%;background:#000;border:1px solid #444;color:#fff;padding:8px 10px;border-radius:6px;font-size:12px;"><option value="true">Açık (Test)</option><option value="false">Kapalı (Canlı)</option></select></div>
+<button class="firmaSecBtn" onclick="firmaKaydetVeSec(this)">💾 KAYDET VE SEÇ</button>
+</div>
+</div>
+
+<div class="firmaKart" data-firma="Kargoist">
+<div class="firmaHeader" onclick="firmaToggle(this)">
+<div class="durumIsik kirmizi"></div>
+<span class="firmaAdi">Kargoist</span>
+<span class="firmaToggle">▼</span>
+</div>
+<div class="firmaDetay">
+<div class="inputGrup"><label>API Adresi</label><input type="text" class="apiAdres" placeholder="https://api.kargoist.com/..."></div>
+<div class="inputGrup"><label>API Key</label><input type="text" class="apiKey" placeholder="API anahtarı"></div>
+<div class="inputGrup"><label>Kullanıcı Adı</label><input type="text" class="kullaniciAdi" placeholder="Kullanıcı adı"></div>
+<div class="inputGrup"><label>Şifre</label><input type="password" class="sifre" placeholder="Şifre"></div>
+<div class="inputGrup"><label>Müşteri Kodu</label><input type="text" class="musteriKodu" placeholder="Müşteri kodu"></div>
+<div class="inputGrup"><label>Ödeme Tipi</label><select class="odemeTipi" style="width:100%;background:#000;border:1px solid #444;color:#fff;padding:8px 10px;border-radius:6px;font-size:12px;"><option value="gonderen">Gönderici Öder</option><option value="alici">Alıcı Öder (Kapıda Ödeme)</option></select></div>
+<div class="inputGrup"><label>Test Modu</label><select class="testModu" style="width:100%;background:#000;border:1px solid #444;color:#fff;padding:8px 10px;border-radius:6px;font-size:12px;"><option value="true">Açık (Test)</option><option value="false">Kapalı (Canlı)</option></select></div>
+<button class="firmaSecBtn" onclick="firmaKaydetVeSec(this)">💾 KAYDET VE SEÇ</button>
+</div>
+</div>
+
+<div class="firmaKart" data-firma="Horoz Lojistik">
+<div class="firmaHeader" onclick="firmaToggle(this)">
+<div class="durumIsik kirmizi"></div>
+<span class="firmaAdi">Horoz Lojistik</span>
+<span class="firmaToggle">▼</span>
+</div>
+<div class="firmaDetay">
+<div class="inputGrup"><label>API Adresi</label><input type="text" class="apiAdres" placeholder="https://api.horozlojistik.com.tr/..."></div>
+<div class="inputGrup"><label>API Key</label><input type="text" class="apiKey" placeholder="API anahtarı"></div>
+<div class="inputGrup"><label>Kullanıcı Adı</label><input type="text" class="kullaniciAdi" placeholder="Kullanıcı adı"></div>
+<div class="inputGrup"><label>Şifre</label><input type="password" class="sifre" placeholder="Şifre"></div>
+<div class="inputGrup"><label>Müşteri Kodu</label><input type="text" class="musteriKodu" placeholder="Müşteri kodu"></div>
+<div class="inputGrup"><label>Ödeme Tipi</label><select class="odemeTipi" style="width:100%;background:#000;border:1px solid #444;color:#fff;padding:8px 10px;border-radius:6px;font-size:12px;"><option value="gonderen">Gönderici Öder</option><option value="alici">Alıcı Öder (Kapıda Ödeme)</option></select></div>
+<div class="inputGrup"><label>Test Modu</label><select class="testModu" style="width:100%;background:#000;border:1px solid #444;color:#fff;padding:8px 10px;border-radius:6px;font-size:12px;"><option value="true">Açık (Test)</option><option value="false">Kapalı (Canlı)</option></select></div>
+<button class="firmaSecBtn" onclick="firmaKaydetVeSec(this)">💾 KAYDET VE SEÇ</button>
+</div>
+</div>
+
+<div class="firmaKart" data-firma="Kolay Gelsin">
+<div class="firmaHeader" onclick="firmaToggle(this)">
+<div class="durumIsik kirmizi"></div>
+<span class="firmaAdi">Kolay Gelsin</span>
+<span class="firmaToggle">▼</span>
+</div>
+<div class="firmaDetay">
+<div class="inputGrup"><label>API Adresi</label><input type="text" class="apiAdres" placeholder="https://api.kolaygelsin.com/..."></div>
+<div class="inputGrup"><label>API Key</label><input type="text" class="apiKey" placeholder="API anahtarı"></div>
+<div class="inputGrup"><label>Kullanıcı Adı</label><input type="text" class="kullaniciAdi" placeholder="Kullanıcı adı"></div>
+<div class="inputGrup"><label>Şifre</label><input type="password" class="sifre" placeholder="Şifre"></div>
+<div class="inputGrup"><label>Müşteri Kodu</label><input type="text" class="musteriKodu" placeholder="Müşteri kodu"></div>
+<div class="inputGrup"><label>Ödeme Tipi</label><select class="odemeTipi" style="width:100%;background:#000;border:1px solid #444;color:#fff;padding:8px 10px;border-radius:6px;font-size:12px;"><option value="gonderen">Gönderici Öder</option><option value="alici">Alıcı Öder (Kapıda Ödeme)</option></select></div>
+<div class="inputGrup"><label>Test Modu</label><select class="testModu" style="width:100%;background:#000;border:1px solid #444;color:#fff;padding:8px 10px;border-radius:6px;font-size:12px;"><option value="true">Açık (Test)</option><option value="false">Kapalı (Canlı)</option></select></div>
+<button class="firmaSecBtn" onclick="firmaKaydetVeSec(this)">💾 KAYDET VE SEÇ</button>
+</div>
+</div>
+
+<div class="firmaKart" data-firma="Ceva">
+<div class="firmaHeader" onclick="firmaToggle(this)">
+<div class="durumIsik kirmizi"></div>
+<span class="firmaAdi">Ceva</span>
+<span class="firmaToggle">▼</span>
+</div>
+<div class="firmaDetay">
+<div class="inputGrup"><label>API Adresi</label><input type="text" class="apiAdres" placeholder="https://api.cevalogistics.com/..."></div>
+<div class="inputGrup"><label>API Key</label><input type="text" class="apiKey" placeholder="API anahtarı"></div>
+<div class="inputGrup"><label>Kullanıcı Adı</label><input type="text" class="kullaniciAdi" placeholder="Kullanıcı adı"></div>
+<div class="inputGrup"><label>Şifre</label><input type="password" class="sifre" placeholder="Şifre"></div>
+<div class="inputGrup"><label>Müşteri Kodu</label><input type="text" class="musteriKodu" placeholder="Müşteri kodu"></div>
+<div class="inputGrup"><label>Ödeme Tipi</label><select class="odemeTipi" style="width:100%;background:#000;border:1px solid #444;color:#fff;padding:8px 10px;border-radius:6px;font-size:12px;"><option value="gonderen">Gönderici Öder</option><option value="alici">Alıcı Öder (Kapıda Ödeme)</option></select></div>
+<div class="inputGrup"><label>Test Modu</label><select class="testModu" style="width:100%;background:#000;border:1px solid #444;color:#fff;padding:8px 10px;border-radius:6px;font-size:12px;"><option value="true">Açık (Test)</option><option value="false">Kapalı (Canlı)</option></select></div>
+<button class="firmaSecBtn" onclick="firmaKaydetVeSec(this)">💾 KAYDET VE SEÇ</button>
+</div>
+</div>
+
+<div class="firmaKart" data-firma="Netlog">
+<div class="firmaHeader" onclick="firmaToggle(this)">
+<div class="durumIsik kirmizi"></div>
+<span class="firmaAdi">Netlog</span>
+<span class="firmaToggle">▼</span>
+</div>
+<div class="firmaDetay">
+<div class="inputGrup"><label>API Adresi</label><input type="text" class="apiAdres" placeholder="https://api.netlog.com.tr/..."></div>
+<div class="inputGrup"><label>API Key</label><input type="text" class="apiKey" placeholder="API anahtarı"></div>
+<div class="inputGrup"><label>Kullanıcı Adı</label><input type="text" class="kullaniciAdi" placeholder="Kullanıcı adı"></div>
+<div class="inputGrup"><label>Şifre</label><input type="password" class="sifre" placeholder="Şifre"></div>
+<div class="inputGrup"><label>Müşteri Kodu</label><input type="text" class="musteriKodu" placeholder="Müşteri kodu"></div>
+<div class="inputGrup"><label>Ödeme Tipi</label><select class="odemeTipi" style="width:100%;background:#000;border:1px solid #444;color:#fff;padding:8px 10px;border-radius:6px;font-size:12px;"><option value="gonderen">Gönderici Öder</option><option value="alici">Alıcı Öder (Kapıda Ödeme)</option></select></div>
+<div class="inputGrup"><label>Test Modu</label><select class="testModu" style="width:100%;background:#000;border:1px solid #444;color:#fff;padding:8px 10px;border-radius:6px;font-size:12px;"><option value="true">Açık (Test)</option><option value="false">Kapalı (Canlı)</option></select></div>
+<button class="firmaSecBtn" onclick="firmaKaydetVeSec(this)">💾 KAYDET VE SEÇ</button>
+</div>
+</div>
+
+<div class="firmaKart" data-firma="UPS">
+<div class="firmaHeader" onclick="firmaToggle(this)">
+<div class="durumIsik kirmizi"></div>
+<span class="firmaAdi">UPS</span>
+<span class="firmaToggle">▼</span>
+</div>
+<div class="firmaDetay">
+<div class="inputGrup"><label>API Adresi</label><input type="text" class="apiAdres" placeholder="https://onlinetools.ups.com/..."></div>
+<div class="inputGrup"><label>API Key</label><input type="text" class="apiKey" placeholder="API anahtarı"></div>
+<div class="inputGrup"><label>Kullanıcı Adı</label><input type="text" class="kullaniciAdi" placeholder="Kullanıcı adı"></div>
+<div class="inputGrup"><label>Şifre</label><input type="password" class="sifre" placeholder="Şifre"></div>
+<div class="inputGrup"><label>Müşteri Kodu</label><input type="text" class="musteriKodu" placeholder="Müşteri kodu"></div>
+<div class="inputGrup"><label>Ödeme Tipi</label><select class="odemeTipi" style="width:100%;background:#000;border:1px solid #444;color:#fff;padding:8px 10px;border-radius:6px;font-size:12px;"><option value="gonderen">Gönderici Öder</option><option value="alici">Alıcı Öder (Kapıda Ödeme)</option></select></div>
+<div class="inputGrup"><label>Test Modu</label><select class="testModu" style="width:100%;background:#000;border:1px solid #444;color:#fff;padding:8px 10px;border-radius:6px;font-size:12px;"><option value="true">Açık (Test)</option><option value="false">Kapalı (Canlı)</option></select></div>
+<button class="firmaSecBtn" onclick="firmaKaydetVeSec(this)">💾 KAYDET VE SEÇ</button>
+</div>
+</div>
+
+<div class="firmaKart" data-firma="DHL">
+<div class="firmaHeader" onclick="firmaToggle(this)">
+<div class="durumIsik kirmizi"></div>
+<span class="firmaAdi">DHL</span>
+<span class="firmaToggle">▼</span>
+</div>
+<div class="firmaDetay">
+<div class="inputGrup"><label>API Adresi</label><input type="text" class="apiAdres" placeholder="https://api.dhl.com/..."></div>
+<div class="inputGrup"><label>API Key</label><input type="text" class="apiKey" placeholder="API anahtarı"></div>
+<div class="inputGrup"><label>Kullanıcı Adı</label><input type="text" class="kullaniciAdi" placeholder="Kullanıcı adı"></div>
+<div class="inputGrup"><label>Şifre</label><input type="password" class="sifre" placeholder="Şifre"></div>
+<div class="inputGrup"><label>Müşteri Kodu</label><input type="text" class="musteriKodu" placeholder="Müşteri kodu"></div>
+<div class="inputGrup"><label>Ödeme Tipi</label><select class="odemeTipi" style="width:100%;background:#000;border:1px solid #444;color:#fff;padding:8px 10px;border-radius:6px;font-size:12px;"><option value="gonderen">Gönderici Öder</option><option value="alici">Alıcı Öder (Kapıda Ödeme)</option></select></div>
+<div class="inputGrup"><label>Test Modu</label><select class="testModu" style="width:100%;background:#000;border:1px solid #444;color:#fff;padding:8px 10px;border-radius:6px;font-size:12px;"><option value="true">Açık (Test)</option><option value="false">Kapalı (Canlı)</option></select></div>
+<button class="firmaSecBtn" onclick="firmaKaydetVeSec(this)">💾 KAYDET VE SEÇ</button>
+</div>
+</div>
+
+<div class="firmaKart" data-firma="FedEx">
+<div class="firmaHeader" onclick="firmaToggle(this)">
+<div class="durumIsik kirmizi"></div>
+<span class="firmaAdi">FedEx</span>
+<span class="firmaToggle">▼</span>
+</div>
+<div class="firmaDetay">
+<div class="inputGrup"><label>API Adresi</label><input type="text" class="apiAdres" placeholder="https://apis.fedex.com/..."></div>
+<div class="inputGrup"><label>API Key</label><input type="text" class="apiKey" placeholder="API anahtarı"></div>
+<div class="inputGrup"><label>Kullanıcı Adı</label><input type="text" class="kullaniciAdi" placeholder="Kullanıcı adı"></div>
+<div class="inputGrup"><label>Şifre</label><input type="password" class="sifre" placeholder="Şifre"></div>
+<div class="inputGrup"><label>Müşteri Kodu</label><input type="text" class="musteriKodu" placeholder="Müşteri kodu"></div>
+<div class="inputGrup"><label>Ödeme Tipi</label><select class="odemeTipi" style="width:100%;background:#000;border:1px solid #444;color:#fff;padding:8px 10px;border-radius:6px;font-size:12px;"><option value="gonderen">Gönderici Öder</option><option value="alici">Alıcı Öder (Kapıda Ödeme)</option></select></div>
+<div class="inputGrup"><label>Test Modu</label><select class="testModu" style="width:100%;background:#000;border:1px solid #444;color:#fff;padding:8px 10px;border-radius:6px;font-size:12px;"><option value="true">Açık (Test)</option><option value="false">Kapalı (Canlı)</option></select></div>
+<button class="firmaSecBtn" onclick="firmaKaydetVeSec(this)">💾 KAYDET VE SEÇ</button>
+</div>
+</div>
+
+<div class="firmaKart" data-firma="TNT">
+<div class="firmaHeader" onclick="firmaToggle(this)">
+<div class="durumIsik kirmizi"></div>
+<span class="firmaAdi">TNT</span>
+<span class="firmaToggle">▼</span>
+</div>
+<div class="firmaDetay">
+<div class="inputGrup"><label>API Adresi</label><input type="text" class="apiAdres" placeholder="https://api.tnt.com/..."></div>
+<div class="inputGrup"><label>API Key</label><input type="text" class="apiKey" placeholder="API anahtarı"></div>
+<div class="inputGrup"><label>Kullanıcı Adı</label><input type="text" class="kullaniciAdi" placeholder="Kullanıcı adı"></div>
+<div class="inputGrup"><label>Şifre</label><input type="password" class="sifre" placeholder="Şifre"></div>
+<div class="inputGrup"><label>Müşteri Kodu</label><input type="text" class="musteriKodu" placeholder="Müşteri kodu"></div>
+<div class="inputGrup"><label>Ödeme Tipi</label><select class="odemeTipi" style="width:100%;background:#000;border:1px solid #444;color:#fff;padding:8px 10px;border-radius:6px;font-size:12px;"><option value="gonderen">Gönderici Öder</option><option value="alici">Alıcı Öder (Kapıda Ödeme)</option></select></div>
+<div class="inputGrup"><label>Test Modu</label><select class="testModu" style="width:100%;background:#000;border:1px solid #444;color:#fff;padding:8px 10px;border-radius:6px;font-size:12px;"><option value="true">Açık (Test)</option><option value="false">Kapalı (Canlı)</option></select></div>
+<button class="firmaSecBtn" onclick="firmaKaydetVeSec(this)">💾 KAYDET VE SEÇ</button>
+</div>
+</div>
+
+<div class="firmaKart" data-firma="DPD">
+<div class="firmaHeader" onclick="firmaToggle(this)">
+<div class="durumIsik kirmizi"></div>
+<span class="firmaAdi">DPD</span>
+<span class="firmaToggle">▼</span>
+</div>
+<div class="firmaDetay">
+<div class="inputGrup"><label>API Adresi</label><input type="text" class="apiAdres" placeholder="https://api.dpd.com/..."></div>
+<div class="inputGrup"><label>API Key</label><input type="text" class="apiKey" placeholder="API anahtarı"></div>
+<div class="inputGrup"><label>Kullanıcı Adı</label><input type="text" class="kullaniciAdi" placeholder="Kullanıcı adı"></div>
+<div class="inputGrup"><label>Şifre</label><input type="password" class="sifre" placeholder="Şifre"></div>
+<div class="inputGrup"><label>Müşteri Kodu</label><input type="text" class="musteriKodu" placeholder="Müşteri kodu"></div>
+<div class="inputGrup"><label>Ödeme Tipi</label><select class="odemeTipi" style="width:100%;background:#000;border:1px solid #444;color:#fff;padding:8px 10px;border-radius:6px;font-size:12px;"><option value="gonderen">Gönderici Öder</option><option value="alici">Alıcı Öder (Kapıda Ödeme)</option></select></div>
+<div class="inputGrup"><label>Test Modu</label><select class="testModu" style="width:100%;background:#000;border:1px solid #444;color:#fff;padding:8px 10px;border-radius:6px;font-size:12px;"><option value="true">Açık (Test)</option><option value="false">Kapalı (Canlı)</option></select></div>
+<button class="firmaSecBtn" onclick="firmaKaydetVeSec(this)">💾 KAYDET VE SEÇ</button>
+</div>
+</div>
+
+</div>
+</div>
+</div>
+
+<button class="geriBtn" onclick="window.location.href='ana-sayfa.html'">ANA SAYFA</button>
+
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+<script>
+// Firebase Config
+const firebaseConfig = {
+  apiKey: "AIzaSyBiEXctGsBTCHpuFtQMTDU-uYsuxvASR8I",
+  authDomain: "hizlikargo-93a30.firebaseapp.com",
+  databaseURL: "https://hizlikargo-93a30-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "hizlikargo-93a30",
+  storageBucket: "hizlikargo-93a30.firebasestorage.app",
+  messagingSenderId: "604815462602",
+  appId: "1:604815462602:web:8ca69b66610618e5136433"
+};
+firebase.initializeApp(firebaseConfig);
+var database = firebase.database();
+
+var seciliFirma = null;
+var seciliFirmaBilgi = null;
+var gonderici = null;
+
+function gondericiToggle(){
+var detay = document.getElementById('gondericiDetay');
+var icon = document.getElementById('gondericiToggleIcon');
+if(detay.style.display === 'none'){
+detay.style.display = 'block';
+icon.textContent = '▲';
+} else {
+detay.style.display = 'none';
+icon.textContent = '▼';
+}
+}
+
+function gondericiKaydet(){
+var ad = document.getElementById('gondericiAd').value.trim();
+var tel = document.getElementById('gondericiTel').value.trim();
+var il = document.getElementById('gondericiIl').value.trim();
+var ilce = document.getElementById('gondericiIlce').value.trim();
+var adres = document.getElementById('gondericiAdres').value.trim();
+var vergi = document.getElementById('gondericiVergi').value.trim();
+
+if(!ad || !tel || !il || !adres){
+alert('Lütfen tüm gönderici bilgilerini doldurun!');
+return;
+}
+
+gonderici = {ad:ad, tel:tel, il:il, ilce:ilce, adres:adres, vergi:vergi};
+localStorage.setItem('gonderici', JSON.stringify(gonderici));
+alert('✅ Gönderici bilgilerin kaydedildi!');
+
+// Kaydettikten sonra kapat
+document.getElementById('gondericiDetay').style.display = 'none';
+document.getElementById('gondericiToggleIcon').textContent = '▼';
+}
+
+function gondericiYukle(){
+var data = localStorage.getItem('gonderici');
+if(data){
+gonderici = JSON.parse(data);
+document.getElementById('gondericiAd').value = gonderici.ad || '';
+document.getElementById('gondericiTel').value = gonderici.tel || '';
+document.getElementById('gondericiIl').value = gonderici.il || '';
+document.getElementById('gondericiIlce').value = gonderici.ilce || '';
+document.getElementById('gondericiAdres').value = gonderici.adres || '';
+document.getElementById('gondericiVergi').value = gonderici.vergi || '';
+}
+}
+
+function cekmeceToggle(){
+var cekmece = document.getElementById('solSutun');
+var btn = document.getElementById('sirketlerBtn');
+if(cekmece.classList.contains('acik')){
+cekmece.classList.remove('acik');
+btn.classList.remove('acik');
+} else {
+cekmece.classList.add('acik');
+btn.classList.add('acik');
+}
+}
+
+function cekmeceKapat(){
+document.getElementById('solSutun').classList.remove('acik');
+document.getElementById('sirketlerBtn').classList.remove('acik');
+}
+
+function firmaToggle(header){
+var detay = header.nextElementSibling;
+var toggle = header.querySelector('.firmaToggle');
+if(detay.classList.contains('acik')){
+detay.classList.remove('acik');
+toggle.textContent = '▼';
+} else {
+document.querySelectorAll('.firmaDetay').forEach(function(d){ d.classList.remove('acik'); });
+document.querySelectorAll('.firmaToggle').forEach(function(t){ t.textContent = '▼'; });
+detay.classList.add('acik');
+toggle.textContent = '▲';
+}
+}
+
+function firmaKaydetVeSec(btn){
+var kart = btn.closest('.firmaKart');
+var firma = kart.dataset.firma;
+var apiAdres = kart.querySelector('.apiAdres').value.trim();
+var apiKey = kart.querySelector('.apiKey').value.trim();
+var kullaniciAdi = kart.querySelector('.kullaniciAdi').value.trim();
+var sifre = kart.querySelector('.sifre').value.trim();
+var musteriKodu = kart.querySelector('.musteriKodu').value.trim();
+var odemeTipi = kart.querySelector('.odemeTipi').value;
+var testModu = kart.querySelector('.testModu').value;
+
+if(!apiAdres){
+alert('Lütfen API adresi girin!');
+return;
+}
+
+var bilgi = {apiAdres:apiAdres, apiKey:apiKey, kullaniciAdi:kullaniciAdi, sifre:sifre, musteriKodu:musteriKodu, odemeTipi:odemeTipi, testModu:testModu};
+
+// LocalStorage'a kaydet
+var tumVeriler = JSON.parse(localStorage.getItem('kargoApiBilgileri') || '{}');
+tumVeriler[firma] = bilgi;
+localStorage.setItem('kargoApiBilgileri', JSON.stringify(tumVeriler));
+
+// Işığı yeşil yap
+var isik = kart.querySelector('.durumIsik');
+isik.classList.remove('kirmizi');
+isik.classList.add('yesil');
+
+// Firmayı seç
+seciliFirma = firma;
+seciliFirmaBilgi = bilgi;
+
+// İşlem sütun başlığını güncelle
+document.getElementById('islemBaslik').textContent = firma;
+
+alert('✅ ' + firma + ' bilgileri kaydedildi ve seçildi!');
+cekmeceKapat();
+}
+
+function yukle(){
+// Gönderici bilgilerini yükle
+gondericiYukle();
+
+// Gönderici değişkenini kontrol et
+var data = localStorage.getItem('gonderici');
+if(data){
+gonderici = JSON.parse(data);
+}
+
+// Kargo firma bilgilerini yükle
+var tumVeriler = JSON.parse(localStorage.getItem('kargoApiBilgileri') || '{}');
+document.querySelectorAll('.firmaKart').forEach(function(kart){
+var firma = kart.dataset.firma;
+if(tumVeriler[firma]){
+var bilgi = tumVeriler[firma];
+kart.querySelector('.apiAdres').value = bilgi.apiAdres || '';
+kart.querySelector('.apiKey').value = bilgi.apiKey || '';
+kart.querySelector('.kullaniciAdi').value = bilgi.kullaniciAdi || '';
+kart.querySelector('.sifre').value = bilgi.sifre || '';
+kart.querySelector('.musteriKodu').value = bilgi.musteriKodu || '';
+if(kart.querySelector('.odemeTipi')) kart.querySelector('.odemeTipi').value = bilgi.odemeTipi || 'gonderen';
+if(kart.querySelector('.testModu')) kart.querySelector('.testModu').value = bilgi.testModu || 'true';
+if(bilgi.apiAdres){
+var isik = kart.querySelector('.durumIsik');
+isik.classList.remove('kirmizi');
+isik.classList.add('yesil');
+}
+}
+});
+
+// Siparişleri yükle
+siparisYukle();
+}
+
+// Listener referansı - çift yüklemeyi önlemek için
+var siparisListener = null;
+
+function siparisYukle(){
+var tbody = document.getElementById('siparisListe');
+tbody.innerHTML = '<tr><td colspan="15" style="text-align:center;padding:30px;color:#999;">Yükleniyor...</td></tr>';
+
+// Önceki listener'ı kaldır (çift yüklemeyi önle)
+if(siparisListener){
+database.ref('siparisler').off('value', siparisListener);
+}
+
+// Sadece kargoHazir olan siparişleri göster (Sipariş Takibi'nde KARGO butonuna basılanlar)
+siparisListener = database.ref('siparisler').on('value', function(snapshot){
+tbody.innerHTML = '';
+var siparisler = [];
+
+snapshot.forEach(function(child){
+var data = child.val();
+data.key = child.key;
+// Sadece kargoHazir: true olan ve henüz kargoya verilmemiş siparişleri al
+if(data.kargoHazir === true && data.durum !== 'Kargoya Verildi'){
+siparisler.push(data);
+}
+// VEYA durum "Kargo Bekliyor" olanları da al
+if(data.durum === 'Kargo Bekliyor'){
+// Zaten eklenmemişse ekle
+var zatenVar = siparisler.some(function(s){ return s.key === data.key; });
+if(!zatenVar) siparisler.push(data);
+}
+});
+
+if(siparisler.length === 0){
+tbody.innerHTML = '<tr><td colspan="15" style="text-align:center;padding:30px;color:#999;">Gönderilecek sipariş yok. Sipariş Takibi\'nde KARGO butonuna basarak sipariş ekleyin.</td></tr>';
+return;
+}
+
+// En yeni siparişler üstte olacak şekilde sırala
+siparisler.sort(function(a, b){
+return (b.kargoHazirTarih || b.timestamp || 0) - (a.kargoHazirTarih || a.timestamp || 0);
+});
+
+siparisler.forEach(function(siparis){
+var tr = document.createElement('tr');
+var odemeYontemi = siparis.odemeYontemi || 'Nakit';
+// Ödeme yöntemini belirgin yap
+if(odemeYontemi === 'Nakit') odemeYontemi = 'Kapıda Nakit';
+if(odemeYontemi === 'Kredi Kartı') odemeYontemi = 'Kapıda Kredi Kartı';
+var adet = siparis.adet || '1';
+// Eğer sadece rakam gelirse "X Adet" formatına çevir
+if(adet === '1') adet = '1 Adet';
+if(adet === '2') adet = '2 Adet';
+var kargoOdemesi = siparis.kargoOdemesi || 'gonderen';
+var kargoOdemesiText = kargoOdemesi === 'gonderen' ? 'Gönderici' : 'Alıcı';
+var kdvOrani = siparis.kdvOrani || '20';
+
+tr.innerHTML = '<td>'+siparis.siparisNo+'</td><td>'+siparis.tarih+'</td><td>'+siparis.musteri+'</td><td>'+siparis.telefon+'</td><td>'+(siparis.il||'-')+'</td><td>'+(siparis.ilce||'-')+'</td><td style="max-width:150px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"><span class="adresLink" onclick="adresGoster(\''+(siparis.adres||'-').replace(/'/g, "\\'")+'\', \''+siparis.key+'\')">'+(siparis.adres||'-')+'</span></td><td><select class="kdvSelect" data-key="'+siparis.key+'" onchange="kdvDegistir(this)" style="padding:5px;border-radius:5px;border:1px solid #ddd;font-size:11px;cursor:pointer;"><option value="20" '+(kdvOrani==='20'?'selected':'')+'>%20</option><option value="10" '+(kdvOrani==='10'?'selected':'')+'>%10</option><option value="1" '+(kdvOrani==='1'?'selected':'')+'>%1</option><option value="0" '+(kdvOrani==='0'?'selected':'')+'>%0</option></select></td><td>'+(siparis.urunAdi||'-')+'</td><td>'+adet+'</td><td>'+odemeYontemi+'</td><td>'+siparis.tutar+'</td><td><select class="kargoOdemesiSelect" data-key="'+siparis.key+'" onchange="kargoOdemesiDegistir(this)" style="padding:5px;border-radius:5px;border:1px solid #ddd;font-size:11px;cursor:pointer;"><option value="gonderen" '+(kargoOdemesi==='gonderen'?'selected':'')+'>Gönderici</option><option value="alici" '+(kargoOdemesi==='alici'?'selected':'')+'>Alıcı</option></select></td><td><span class="badge badge-bekliyor">Kargo Bekliyor</span></td><td><button class="islemBtn kargoBtn" onclick="kargoGonder(\''+siparis.key+'\')">GÖNDER</button><button class="islemBtn silBtn" onclick="siparisiSilDirekt(\''+siparis.key+'\')">SİL</button></td>';
+tbody.appendChild(tr);
+});
+});
+}
+
+function kargoOdemesiDegistir(select){
+var key = select.dataset.key;
+var deger = select.value;
+database.ref('siparisler/' + key).update({
+kargoOdemesi: deger
+});
+}
+
+function kdvDegistir(select){
+var key = select.dataset.key;
+var deger = select.value;
+database.ref('siparisler/' + key).update({
+kdvOrani: deger
+}).then(function(){
+console.log('KDV güncellendi: %' + deger);
+}).catch(function(error){
+alert('❌ Hata: ' + error.message);
+});
+}
+
+var seciliSiparisKey = null;
+
+function adresGoster(adres, key){
+document.getElementById('adresPopupMetin').textContent = adres;
+seciliSiparisKey = key;
+document.getElementById('adresPopup').classList.add('show');
+}
+
+function adresPopupKapat(){
+document.getElementById('adresPopup').classList.remove('show');
+seciliSiparisKey = null;
+}
+
+function siparisiSil(){
+if(!seciliSiparisKey){
+alert('Sipariş bulunamadı!');
+return;
+}
+if(!confirm('Bu siparişi silmek istediğine emin misin?')) return;
+
+database.ref('siparisler/' + seciliSiparisKey).remove().then(function(){
+alert('✅ Sipariş silindi!');
+adresPopupKapat();
+// Tabloyu yenile
+siparisYukle();
+}).catch(function(error){
+alert('❌ Hata: ' + error.message);
+});
+}
+
+function siparisiSilDirekt(key){
+if(!confirm('Bu siparişi kargo listesinden çıkarmak istediğine emin misin?')) return;
+
+database.ref('siparisler/' + key).update({
+kargoHazir: false,
+durum: 'Bekliyor'
+}).then(function(){
+alert('✅ Sipariş kargo listesinden çıkarıldı!');
+siparisYukle();
+}).catch(function(error){
+alert('❌ Hata: ' + error.message);
+});
+}
+
+function kargoGonder(key){
+if(!seciliFirma || !seciliFirmaBilgi){
+alert('⚠️ Lütfen önce sol taraftan bir kargo firması seçin!\n\nŞİRKETLER butonuna tıklayıp bir firma seçin.');
+cekmeceToggle(); // Çekmeceyi aç
+return;
+}
+
+if(!gonderici || !gonderici.ad){
+alert('⚠️ Lütfen önce gönderici bilgilerinizi girin!\n\nŞİRKETLER butonuna tıklayıp "GÖNDERİCİ BİLGİLERİ" bölümünü doldurun.');
+cekmeceToggle(); // Çekmeceyi aç
+return;
+}
+
+// Sipariş bilgilerini al
+database.ref('siparisler/' + key).once('value', function(snapshot){
+var siparis = snapshot.val();
+if(!siparis){
+alert('❌ Sipariş bulunamadı!');
+return;
+}
+
+// Kargo API'sine gönderilecek veri
+var kargoData = {
+// API Bilgileri
+api: {
+firma: seciliFirma,
+apiAdres: seciliFirmaBilgi.apiAdres,
+apiKey: seciliFirmaBilgi.apiKey,
+kullaniciAdi: seciliFirmaBilgi.kullaniciAdi,
+sifre: seciliFirmaBilgi.sifre,
+musteriKodu: seciliFirmaBilgi.musteriKodu,
+testModu: seciliFirmaBilgi.testModu === 'true'
+},
+// Gönderici Bilgileri (Senin bilgilerin)
+gonderici: {
+ad: gonderici.ad,
+telefon: gonderici.tel,
+il: gonderici.il,
+ilce: gonderici.ilce,
+adres: gonderici.adres,
+vergiNo: gonderici.vergi
+},
+// Alıcı Bilgileri (Müşteri)
+alici: {
+ad: siparis.musteri,
+telefon: siparis.telefon,
+il: siparis.il || '',
+ilce: siparis.ilce || '',
+adres: siparis.adres || ''
+},
+// Kargo Bilgileri
+kargo: {
+siparisNo: siparis.siparisNo,
+adet: siparis.adet || '1',
+tutar: siparis.tutar,
+odemeYontemi: siparis.odemeYontemi || 'Nakit',
+kargoOdemesi: siparis.kargoOdemesi || 'gonderen',
+urunAdi: siparis.urunAdi || ''
+}
+};
+
+// Butonu devre dışı bırak
+var btn = document.querySelector('button[onclick="kargoGonder(\''+key+'\')"]');
+if(btn){
+btn.disabled = true;
+btn.textContent = 'GÖNDERİLİYOR...';
+}
+
+// Kargo API'sine backend üzerinden istek gönder (CORS sorunu olmaz)
+fetch('https://kargo-backend.vercel.app/api/gonder', {
+method: 'POST',
+headers: {
+'Content-Type': 'application/json'
+},
+body: JSON.stringify({
+firma: seciliFirma,
+apiUrl: seciliFirmaBilgi.apiAdres,
+apiKey: seciliFirmaBilgi.apiKey,
+username: seciliFirmaBilgi.kullaniciAdi,
+password: seciliFirmaBilgi.sifre,
+customerCode: seciliFirmaBilgi.musteriKodu,
+shipment: kargoData
+})
+})
+.then(function(response){
+return response.json();
+})
+.then(function(result){
+// Başarılı yanıt
+var takipNo = result.takipNo || result.trackingNumber || result.barkod || result.barcode || 'API-' + Date.now();
+
+// Firebase'i güncelle
+database.ref('siparisler/' + key).update({
+durum: 'Kargoya Verildi',
+kargoFirma: seciliFirma,
+kargoTarih: new Date().toLocaleDateString('tr-TR'),
+kargoTakipNo: takipNo,
+kargoApiYanit: result
+}).then(function(){
+alert('✅ Sipariş ' + seciliFirma + ' ile kargoya verildi!\n\n📦 Takip No: ' + takipNo + '\n👤 Gönderici: ' + gonderici.ad + '\n📍 Alıcı: ' + siparis.musteri);
+siparisYukle();
+});
+})
+.catch(function(error){
+console.error('Kargo API Hatası:', error);
+
+// API hatası olsa bile Firebase'i güncelle (manuel takip için)
+if(confirm('⚠️ Kargo API\'sine bağlanılamadı!\n\nHata: ' + error.message + '\n\nYine de siparişi "Kargoya Verildi" olarak işaretlemek ister misiniz?')){
+database.ref('siparisler/' + key).update({
+durum: 'Kargoya Verildi',
+kargoFirma: seciliFirma,
+kargoTarih: new Date().toLocaleDateString('tr-TR'),
+kargoTakipNo: 'MANUEL',
+kargoApiHata: error.message
+}).then(function(){
+alert('✅ Sipariş manuel olarak kargoya verildi olarak işaretlendi.\n\n⚠️ Takip numarasını manuel girmeniz gerekebilir.');
+siparisYukle();
+});
+} else {
+// Butonu tekrar aktif et
+if(btn){
+btn.disabled = false;
+btn.textContent = 'GÖNDER';
+}
+}
+});
+});
+}
+
+window.onload = yukle;
+</script>
+</body>
+</html>

@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🔐 Admin Girişi</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: #000;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: 'Segoe UI', Arial, sans-serif;
+  overflow: hidden;
+}
+
+/* Yıldızlı arka plan */
+.stars {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.star {
+  position: absolute;
+  background: #fff;
+  border-radius: 50%;
+  animation: twinkle 2s infinite;
+}
+
+@keyframes twinkle {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 1; }
+}
+
+/* Dönen halka */
+.ring {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 450px;
+  height: 450px;
+  border: 2px solid rgba(233, 69, 96, 0.1);
+  border-radius: 50%;
+  animation: rotateSlow 20s linear infinite;
+}
+
+.ring::before {
+  content: '';
+  position: absolute;
+  top: -5px;
+  left: 50%;
+  width: 10px;
+  height: 10px;
+  background: #e94560;
+  border-radius: 50%;
+  box-shadow: 0 0 20px #e94560;
+}
+
+@keyframes rotateSlow {
+  from { transform: translate(-50%, -50%) rotate(0deg); }
+  to { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+/* Ana kart */
+.login-card {
+  background: rgba(15, 15, 35, 0.95);
+  border: 2px solid rgba(233, 69, 96, 0.3);
+  border-radius: 25px;
+  padding: 50px 40px;
+  text-align: center;
+  z-index: 10;
+  position: relative;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5),
+              0 0 100px rgba(233, 69, 96, 0.1);
+  animation: cardFloat 3s ease-in-out infinite;
+  max-width: 400px;
+  width: 90%;
+}
+
+@keyframes cardFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+/* Logo/İkon */
+.logo {
+  width: 100px;
+  height: 100px;
+  background: linear-gradient(135deg, #e94560, #0f3460);
+  border-radius: 50%;
+  margin: 0 auto 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 50px;
+  box-shadow: 0 10px 40px rgba(233, 69, 96, 0.4);
+  animation: logoPulse 2s ease-in-out infinite;
+}
+
+@keyframes logoPulse {
+  0%, 100% { box-shadow: 0 10px 40px rgba(233, 69, 96, 0.4); }
+  50% { box-shadow: 0 10px 60px rgba(233, 69, 96, 0.6); }
+}
+
+.title {
+  font-size: 28px;
+  font-weight: bold;
+  color: #fff;
+  margin-bottom: 10px;
+  text-shadow: 0 0 20px rgba(233, 69, 96, 0.5);
+}
+
+.subtitle {
+  color: #888;
+  font-size: 14px;
+  margin-bottom: 40px;
+}
+
+/* Input grubu */
+.input-group {
+  position: relative;
+  margin-bottom: 30px;
+}
+
+.input-group input {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.05);
+  border: 2px solid rgba(233, 69, 96, 0.3);
+  border-radius: 15px;
+  padding: 18px 20px 18px 55px;
+  font-size: 16px;
+  color: #fff;
+  outline: none;
+  transition: all 0.3s;
+}
+
+.input-group input:focus {
+  border-color: #e94560;
+  box-shadow: 0 0 30px rgba(233, 69, 96, 0.2);
+  background: rgba(233, 69, 96, 0.05);
+}
+
+.input-group input::placeholder {
+  color: #666;
+}
+
+.input-group .icon {
+  position: absolute;
+  left: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 20px;
+  color: #e94560;
+}
+
+/* Giriş butonu */
+.login-btn {
+  width: 100%;
+  background: linear-gradient(135deg, #e94560, #0f3460);
+  border: none;
+  padding: 18px;
+  border-radius: 15px;
+  color: #fff;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s;
+  box-shadow: 0 10px 30px rgba(233, 69, 96, 0.3);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+.login-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 15px 40px rgba(233, 69, 96, 0.4);
+}
+
+.login-btn:active {
+  transform: translateY(0);
+}
+
+/* Hata mesajı */
+.error-msg {
+  background: rgba(231, 76, 60, 0.2);
+  border: 1px solid rgba(231, 76, 60, 0.5);
+  color: #e74c3c;
+  padding: 12px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+  font-size: 14px;
+  display: none;
+  animation: shake 0.5s;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-10px); }
+  75% { transform: translateX(10px); }
+}
+
+.error-msg.show {
+  display: block;
+}
+
+/* Başarı animasyonu */
+.success-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.9);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 100;
+  flex-direction: column;
+}
+
+.success-overlay.show {
+  display: flex;
+  animation: fadeIn 0.3s;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.success-icon {
+  width: 120px;
+  height: 120px;
+  background: linear-gradient(135deg, #2ecc71, #27ae60);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 60px;
+  margin-bottom: 30px;
+  animation: successPop 0.5s ease;
+  box-shadow: 0 0 60px rgba(46, 204, 113, 0.5);
+}
+
+@keyframes successPop {
+  0% { transform: scale(0); }
+  50% { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
+
+.success-text {
+  color: #fff;
+  font-size: 24px;
+  font-weight: bold;
+}
+
+/* Footer */
+.footer {
+  margin-top: 30px;
+  color: #555;
+  font-size: 12px;
+}
+</style>
+</head>
+<body>
+
+<!-- Yıldızlar -->
+<div class="stars" id="stars"></div>
+
+<!-- Dönen halka -->
+<div class="ring"></div>
+
+<!-- Giriş kartı -->
+<div class="login-card">
+  <div class="logo">🔐</div>
+  <h1 class="title">Admin Girişi</h1>
+  <p class="subtitle">Devam etmek için şifrenizi girin</p>
+  
+  <div class="error-msg" id="errorMsg">❌ Şifre yanlış! Tekrar deneyin.</div>
+  
+  <div class="input-group">
+    <span class="icon">🔑</span>
+    <input type="password" id="sifre" placeholder="Şifrenizi girin..." onkeypress="enterKontrol(event)">
+  </div>
+  
+  <button class="login-btn" onclick="girisYap()">🚀 Giriş Yap</button>
+  
+  <div class="footer">RAMCO Admin Panel</div>
+</div>
+
+<!-- Başarı overlay -->
+<div class="success-overlay" id="successOverlay">
+  <div class="success-icon">✓</div>
+  <div class="success-text">Hoş Geldiniz!</div>
+</div>
+
+<script>
+// Yıldızları oluştur
+var starsContainer = document.getElementById('stars');
+for(var i = 0; i < 100; i++) {
+  var star = document.createElement('div');
+  star.className = 'star';
+  star.style.left = Math.random() * 100 + '%';
+  star.style.top = Math.random() * 100 + '%';
+  star.style.width = Math.random() * 3 + 1 + 'px';
+  star.style.height = star.style.width;
+  star.style.animationDelay = Math.random() * 2 + 's';
+  starsContainer.appendChild(star);
+}
+
+// Enter tuşu kontrolü
+function enterKontrol(e) {
+  if(e.key === 'Enter') {
+    girisYap();
+  }
+}
+
+// Giriş fonksiyonu
+function girisYap() {
+  var sifre = document.getElementById('sifre').value.toLowerCase();
+  var errorMsg = document.getElementById('errorMsg');
+  
+  if(sifre === 'hayat123') {
+    // Başarılı giriş
+    errorMsg.classList.remove('show');
+    document.getElementById('successOverlay').classList.add('show');
+    
+    // 1.5 saniye sonra yönlendir
+    setTimeout(function() {
+      localStorage.setItem('admin_giris_yapildi', 'true');
+      window.location.href = 'ekran-sayfası.html';
+    }, 1500);
+  } else {
+    // Hatalı şifre
+    errorMsg.classList.add('show');
+    document.getElementById('sifre').value = '';
+    document.getElementById('sifre').focus();
+  }
+}
+
+// Sayfa yüklenince input'a odaklan
+document.getElementById('sifre').focus();
+</script>
+</body>
+</html>
